@@ -1,0 +1,3825 @@
+
+
+
+<!DOCTYPE html>
+<html lang="hi" class="h-full w-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>विहंगम किराना स्टोर - फुल-विड्थ POS बिलिंग, बहीखाता</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --app-height: 100dvh;
+    }
+
+    html, body {
+      height: var(--app-height);
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Mukta', sans-serif;
+      background: radial-gradient(circle at 30% 10%, #f8fafc 0%, #f1f5f9 60%, #e2e8f0 100%);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .fluid-panel {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.875rem;
+      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+    }
+
+    .fluid-bill-canvas {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.07);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 3px 0 #047857, 0 4px 8px rgba(5, 150, 105, 0.22);
+      transition: all 0.1s ease;
+    }
+    .btn-emerald:active { transform: translateY(2px); box-shadow: 0 1px 0 #047857; }
+
+    .btn-indigo {
+      background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+      box-shadow: 0 3px 0 #3730a3, 0 4px 8px rgba(79, 70, 229, 0.22);
+    }
+    .btn-indigo:active { transform: translateY(2px); box-shadow: 0 1px 0 #3730a3; }
+
+    .btn-blue {
+      background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 3px 0 #1d4ed8;
+    }
+    .btn-blue:active { transform: translateY(2px); box-shadow: 0 1px 0 #1d4ed8; }
+
+    .btn-rose {
+      background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+      box-shadow: 0 3px 0 #9f1239;
+    }
+    .btn-rose:active { transform: translateY(2px); box-shadow: 0 1px 0 #9f1239; }
+
+    .btn-amber {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 3px 0 #b45309;
+    }
+    .btn-amber:active { transform: translateY(2px); box-shadow: 0 1px 0 #b45309; }
+
+    .btn-purple {
+      background: linear-gradient(180deg, #a855f7 0%, #9333ea 100%);
+      box-shadow: 0 3px 0 #6b21a8;
+    }
+
+    .btn-slate {
+      background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+      box-shadow: 0 3px 0 #0f172a;
+    }
+    .btn-slate:active { transform: translateY(2px); box-shadow: 0 1px 0 #0f172a; }
+
+    .input-fluid {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+      transition: all 0.15s ease;
+    }
+    .input-fluid:focus {
+      background: #ffffff;
+      border-color: #10b981;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02), 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .input-fluid-amber {
+      background: #fffdf5;
+      border: 1.5px solid #fcd34d;
+      box-shadow: inset 0 1px 2px rgba(217, 119, 6, 0.05);
+    }
+    .input-fluid-amber:focus {
+      background: #ffffff;
+      border-color: #f59e0b;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.02), 0 0 0 3px rgba(245, 158, 11, 0.25);
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+    @media print {
+      html, body { height: auto !important; overflow: visible !important; width: 100% !important; }
+      .no-print, #mobileBottomNav { display: none !important; }
+      body { background: white !important; padding: 0 !important; color: #000 !important; }
+
+      body.print-receipt-mode * { visibility: hidden !important; }
+      body.print-receipt-mode #depositReceiptModal,
+      body.print-receipt-mode #depositReceiptModal * { visibility: visible !important; }
+      body.print-receipt-mode #depositReceiptModal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: white !important;
+        padding: 0 !important;
+      }
+      body.print-receipt-mode #depositReceiptSlipBox {
+        border: 1px solid #222 !important;
+        box-shadow: none !important;
+        max-width: 380px !important;
+        margin: 0 auto !important;
+      }
+
+      body.print-due-mode * { visibility: hidden !important; }
+      body.print-due-mode #dueReportModal,
+      body.print-due-mode #dueReportModal * { visibility: visible !important; }
+      body.print-due-mode #dueReportModal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: white !important;
+        padding: 0 !important;
+      }
+
+      body:not(.print-receipt-mode):not(.print-due-mode) .fluid-bill-canvas { 
+        box-shadow: none !important; 
+        border: 1px solid #777 !important; 
+        border-radius: 0 !important; 
+        margin: 0 !important; 
+        padding: 12px !important; 
+      }
+      input { border: none !important; background: transparent !important; box-shadow: none !important; font-weight: bold !important; color: black !important; }
+      #itemsTableContainer { max-height: none !important; overflow: visible !important; border: none !important; }
+    }
+  </style>
+</head>
+<body class="antialiased flex flex-col h-[100dvh] w-screen select-none">
+
+  <!-- DYNAMIC SUGGESTIONS (DATALIST) -->
+  <datalist id="kiranaCommonItems"></datalist>
+
+  <!-- POPUP: FOLDER BACKUP PROMPT -->
+  <div id="folderPromptModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-[110] flex items-center justify-center p-4">
+    <div class="fluid-panel max-w-md w-full p-5 border-2 border-emerald-500 shadow-2xl text-center">
+      <div class="w-14 h-14 mx-auto rounded-3xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl mb-2.5 shadow-inner">
+        <i class="fa-solid fa-folder-open"></i>
+      </div>
+      <h3 class="text-base md:text-lg font-black text-slate-900 mb-1">बहीखाता बैकअप लोकेशन सेट करें</h3>
+      <p class="text-xs text-slate-600 font-bold mb-4 leading-relaxed">
+        अपने डिवाइस का कोई सुरक्षित फ़ोल्डर चुनें ताकि हर बिल सीधे आपके स्टोरेज में ऑटो-सेव होता रहे!
+      </p>
+      <div class="space-y-2">
+        <button type="button" onclick="pickCustomDriveFolder(true)" class="w-full btn-emerald text-white py-2.5 rounded-xl font-black text-xs md:text-sm flex items-center justify-center gap-2 cursor-pointer shadow">
+          <i class="fa-solid fa-hard-drive"></i> <span>📁 अभी सुरक्षित लोकेशन चुनें</span>
+        </button>
+        <button type="button" onclick="closeFolderPromptModal()" class="w-full bg-slate-100 text-slate-700 py-2 rounded-xl font-bold text-xs cursor-pointer">
+          बाद में चुनेंगे
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGOUT MODAL -->
+  <div id="logoutConfirmModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-[120] flex items-center justify-center p-4">
+    <div class="fluid-panel max-w-sm w-full p-5 border-2 border-rose-500 shadow-2xl text-center">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl mb-2 shadow-inner">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </div>
+      <h3 class="text-base font-black text-slate-900 mb-1" id="logoutModalTitle" data-i18n="logout_title">लॉगआउट की पुष्टि</h3>
+      <p class="text-xs text-slate-500 font-bold mb-4" id="logoutModalDesc" data-i18n="logout_desc">क्या आप वाकई बहीखाता लॉक करके बाहर जाना चाहते हैं?</p>
+      <div class="flex gap-2">
+        <button type="button" onclick="confirmLogoutYes()" class="flex-1 btn-rose text-white py-2.5 rounded-xl font-black text-xs cursor-pointer">
+          <i class="fa-solid fa-check mr-1"></i> <span data-i18n="logout_yes">हाँ, लॉगआउट</span>
+        </button>
+        <button type="button" onclick="closeLogoutModal()" class="flex-1 btn-slate text-white py-2.5 rounded-xl font-black text-xs cursor-pointer">
+          <i class="fa-solid fa-xmark mr-1"></i> <span data-i18n="logout_no">नहीं</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH OVERLAY -->
+  <div id="authOverlay" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4 overflow-y-auto">
+    <div id="authCard" class="fluid-panel max-w-sm w-full p-5 md:p-6 border-2 border-emerald-500/40 shadow-2xl relative my-auto">
+      <div class="absolute top-3 right-3">
+        <button onclick="toggleLanguage()" class="flex items-center gap-1 bg-slate-100 border border-slate-300 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-black cursor-pointer">
+          <i class="fa-solid fa-globe text-emerald-600 text-xs"></i>
+          <span id="authLangSwitchLabel">English</span>
+        </button>
+      </div>
+
+      <div class="text-center mb-4 mt-1">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-b from-emerald-500 to-teal-700 flex items-center justify-center text-white text-xl shadow mb-2">
+          <i class="fa-solid fa-store"></i>
+        </div>
+        <div class="inline-block bg-emerald-50 text-emerald-950 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-300 mb-1">
+          ॥ श्री सुकृत देवाय नमः ॥
+        </div>
+        <h2 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight" data-i18n="store_name">विहंगम किराना स्टोर</h2>
+      </div>
+
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-3 border border-slate-200 text-xs font-black gap-1">
+        <button id="loginTabBtn" onclick="switchAuthTab('login')" class="flex-1 py-1.5 rounded-lg bg-white text-emerald-800 shadow-xs font-black">
+          <span data-i18n="tab_login">लॉगिन</span>
+        </button>
+        <button id="signupTabBtn" onclick="switchAuthTab('signup')" class="flex-1 py-1.5 rounded-lg text-slate-500">
+          <span data-i18n="tab_signup">नया खाता</span>
+        </button>
+        <button id="changePinTabBtn" onclick="switchAuthTab('changePin')" class="flex-1 py-1.5 rounded-lg text-slate-500">
+          <span data-i18n="tab_change_pin">पिन बदलें</span>
+        </button>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3 text-xs font-bold text-slate-700">
+        <div>
+          <label class="block mb-1 text-slate-600 text-center font-extrabold text-xs" data-i18n="lbl_enter_pin">6 अंकों का पासवर्ड (PIN) दर्ज करें:</label>
+          <div class="relative">
+            <input type="password" id="loginPassword" maxlength="6" autofocus required placeholder="••••••" autocomplete="new-password" inputmode="numeric"
+              class="w-full input-fluid py-2 text-center text-2xl tracking-[0.3em] font-black text-slate-900 rounded-xl focus:outline-none">
+            <button type="button" onclick="togglePassVisibility('loginPassword', this)" class="absolute right-3 top-2.5 text-slate-400 text-base">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="loginErrorMsg" class="hidden text-xs font-black text-rose-600 bg-rose-50 border border-rose-200 p-2 rounded-xl text-center"></div>
+        <button type="submit" class="w-full btn-emerald text-white py-2.5 rounded-xl font-black text-sm shadow flex items-center justify-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="btn_login">लॉगिन करें</span>
+        </button>
+      </form>
+
+      <form id="signupForm" onsubmit="handleSignUp(event)" class="hidden space-y-2.5 text-xs font-bold text-slate-700">
+        <div>
+          <label class="block mb-0.5 font-extrabold" data-i18n="lbl_store_owner">दुकान / दुकानदार का नाम:</label>
+          <input type="text" id="signupName" required placeholder="उदा: विहंगम किराना स्टोर" class="w-full input-fluid p-2 rounded-xl font-bold text-slate-900">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block mb-0.5 font-extrabold" data-i18n="lbl_pin">6-अंकों का PIN:</label>
+            <input type="password" id="signupPassword" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-2 text-center tracking-widest rounded-xl font-black text-slate-900">
+          </div>
+          <div>
+            <label class="block mb-0.5 font-extrabold" data-i18n="lbl_confirm_pin">पुनः दर्ज करें:</label>
+            <input type="password" id="signupConfirmPassword" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-2 text-center tracking-widest rounded-xl font-black text-slate-900">
+          </div>
+        </div>
+        <div id="signupErrorMsg" class="hidden text-xs font-black p-2 rounded-xl text-center"></div>
+        <button type="submit" class="w-full btn-indigo text-white py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">
+          <i class="fa-solid fa-user-plus mr-1"></i> <span data-i18n="btn_signup">खाता बनाएं</span>
+        </button>
+      </form>
+
+      <form id="authChangePinForm" onsubmit="handleAuthChangePinSubmit(event)" class="hidden space-y-2.5 text-xs font-bold text-slate-700">
+        <div>
+          <label class="block mb-0.5 font-extrabold">वर्तमान लॉगिन PIN:</label>
+          <input type="password" id="authOldPin" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-2 text-center tracking-widest rounded-xl font-black">
+        </div>
+        <div>
+          <label class="block mb-0.5 font-extrabold">नया 6-अंकों का PIN:</label>
+          <input type="password" id="authNewPin" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-2 text-center tracking-widest rounded-xl font-black">
+        </div>
+        <div>
+          <label class="block mb-0.5 font-extrabold">नया PIN पुनः दर्ज करें:</label>
+          <input type="password" id="authConfirmNewPin" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-2 text-center tracking-widest rounded-xl font-black">
+        </div>
+        <div id="authChangePinMsg" class="hidden text-xs font-black p-1 rounded-xl text-center"></div>
+        <button type="submit" class="w-full btn-amber text-slate-950 py-2.5 rounded-xl font-black text-xs shadow cursor-pointer">
+          <i class="fa-solid fa-circle-check"></i> <span>पिन बदलें</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="bg-gradient-to-r from-slate-950 via-emerald-950 to-teal-950 text-white shadow z-30 no-print border-b border-emerald-800/40 flex-none w-full">
+    <div class="w-full px-2.5 sm:px-4 py-1.5 flex justify-between items-center gap-1.5">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow border border-emerald-300/40">
+          <i class="fa-solid fa-store text-white text-xs"></i>
+        </div>
+        <div>
+          <h1 class="text-xs sm:text-base font-black tracking-tight leading-tight flex items-center gap-1.5">
+            <span data-i18n="store_name">विहंगम किराना</span> 
+            <span class="text-[8px] font-black bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded-full uppercase font-sans">POS</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Header actions (Compact on mobile) -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <!-- Quick Pay (Desktop & Mobile) -->
+        <button onclick="openQuickDepositModal()" class="flex items-center gap-1 bg-amber-500 active:scale-95 text-slate-950 font-black px-2 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs shadow cursor-pointer">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+          <span>जमा 💰</span>
+        </button>
+
+        <!-- WhatsApp Active Bill -->
+        <button onclick="shareActiveBillOnWhatsApp()" class="flex items-center gap-1 bg-emerald-600 active:scale-95 text-white px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-black shadow cursor-pointer" title="बिल व्हाट्सएप पर भेजें">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span class="hidden sm:inline">WhatsApp</span>
+        </button>
+
+        <!-- Print -->
+        <button onclick="window.print()" class="hidden sm:flex items-center gap-1 btn-blue text-white px-2.5 py-1 rounded-lg text-xs font-black cursor-pointer shadow">
+          <i class="fa-solid fa-print"></i>
+          <span data-i18n="btn_print">प्रिंट</span>
+        </button>
+
+        <!-- Language toggle -->
+        <button onclick="toggleLanguage()" class="flex items-center gap-1 bg-white/10 border border-white/20 text-white px-2 py-1 rounded-lg text-[10px] sm:text-xs font-black cursor-pointer">
+          <i class="fa-solid fa-globe text-amber-300"></i>
+          <span id="langSwitchLabel">EN</span>
+        </button>
+
+        <!-- More tools dropdown for mobile / direct buttons for desktop -->
+        <button onclick="openMoreMenuModal()" class="lg:hidden flex items-center justify-center w-7 h-7 bg-white/10 rounded-lg text-white text-xs font-bold border border-white/20">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+
+        <!-- Desktop Only Tools -->
+        <div class="hidden lg:flex items-center gap-1.5">
+          <button onclick="openDueReportModal()" class="btn-rose text-white px-2.5 py-1 rounded-lg text-xs font-black shadow cursor-pointer">
+            बाकी रिपोर्ट ⚠️
+          </button>
+          <button onclick="openDepositReportModal()" class="btn-emerald text-white px-2.5 py-1 rounded-lg text-xs font-black shadow cursor-pointer">
+            जमा रिपोर्ट
+          </button>
+          <button onclick="handleLogout()" class="btn-rose text-white px-2.5 py-1 rounded-lg text-xs font-black shadow cursor-pointer">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE (Mobile Optimized) -->
+  <main class="flex-1 min-h-0 flex flex-col lg:flex-row p-1.5 sm:p-2.5 w-full h-full gap-2 overflow-hidden pb-14 lg:pb-1.5">
+    
+    <!-- LEFT CONTROL PANEL (Hidden on mobile unless toggled) -->
+    <aside id="leftSidebar" class="hidden lg:flex w-full lg:w-[320px] xl:w-[350px] flex-none flex-col gap-2 overflow-y-auto no-print pr-0.5">
+      <div class="fluid-panel p-2.5 space-y-2">
+        <div class="flex items-center justify-between border-b pb-1">
+          <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-1.5">
+            <i class="fa-solid fa-user-check text-emerald-600 text-xs"></i> 
+            <span data-i18n="step_customer">1. ग्राहक चयन व खाता</span>
+          </span>
+          <span id="topControlPageBadge" class="text-[10px] font-black bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded border border-emerald-300">पेज: 1</span>
+        </div>
+
+        <div class="relative">
+          <input type="text" id="customerSearchInput" oninput="handleCustomerSearch(this.value)" onkeydown="handleCustomerSearchKey(event)" data-i18n-ph="search_placeholder" placeholder="🔍 नाम या पेज से खोजें..." 
+            class="w-full input-fluid rounded-xl py-1.5 pl-8 pr-2 font-black text-slate-900 text-xs focus:outline-none">
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-emerald-600 text-xs"></i>
+          <div id="customerSearchResults" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border-2 border-emerald-500 rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto divide-y divide-slate-100"></div>
+        </div>
+
+        <div>
+          <select id="customerSelect" onchange="onCustomerChange()" class="w-full input-fluid rounded-xl p-2 font-bold text-slate-800 text-xs focus:outline-none"></select>
+        </div>
+
+        <div class="pt-1 border-t space-y-1">
+          <div class="flex justify-between items-center text-[10px] font-bold text-slate-500">
+            <span>+ नया ग्राहक जोड़ें:</span>
+            <button onclick="openChangePasswordModal('customerAdd')" class="text-[9px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-300 cursor-pointer">
+              🔑 <span id="custAddPinBtnLabel" data-i18n="btn_change_add_pin">ऐड पिन</span>
+            </button>
+          </div>
+          
+          <div class="flex gap-1">
+            <input type="text" id="newCustomerName" placeholder="नया ग्राहक नाम..." onkeydown="if(event.key==='Enter') triggerAddCustomerSecurely();" 
+              class="flex-1 input-fluid rounded-xl p-1.5 text-xs font-semibold focus:outline-none">
+            <button onclick="triggerAddCustomerSecurely()" class="btn-emerald text-white px-2.5 py-1.5 rounded-xl font-black text-xs cursor-pointer shadow-xs" title="ग्राहक जोड़ें">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <button onclick="openBulkCustomerModal()" class="btn-indigo text-white px-2 py-1.5 rounded-xl font-black text-[10px] cursor-pointer shadow-xs whitespace-nowrap" title="बल्क ग्राहक">
+              👥 बल्क
+            </button>
+            <button onclick="triggerDeleteCustomerSecurely()" class="bg-rose-50 text-rose-700 border border-rose-300 px-2 py-1.5 rounded-xl text-xs font-black cursor-pointer" title="ग्राहक हटाएं">
+              <i class="fa-solid fa-user-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="fluid-panel p-2.5 space-y-2">
+        <div class="flex items-center justify-between border-b pb-1">
+          <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-1">
+            <i class="fa-regular fa-calendar-check text-emerald-600 text-xs"></i> 
+            <span data-i18n="step_date">2. बिल तारीख</span>
+          </span>
+          <button onclick="setTodayDate()" class="text-xs text-emerald-700 font-extrabold hover:underline cursor-pointer" data-i18n="btn_today">आज</button>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <div class="flex-1 input-fluid rounded-xl px-2.5 py-1.5 font-mono font-black text-emerald-950 text-xs bg-white flex justify-between items-center">
+            <span id="topControlDateDMY">--/--/----</span>
+            <span id="topControlDayName" class="text-[10px] text-slate-400 font-bold">(-)</span>
+          </div>
+          <input type="date" id="billDatePicker" onchange="onDateChange(this.value)" class="w-8 h-8 p-0.5 border border-emerald-400 rounded-xl bg-emerald-50 cursor-pointer">
+          <button onclick="openCustomerDatesModal()" class="btn-emerald text-white px-2 py-1.5 rounded-xl text-xs font-black cursor-pointer flex items-center gap-1">
+            <i class="fa-solid fa-calendar-days text-xs"></i>
+            <span id="custDatesBadgeCount" class="bg-emerald-950/70 text-emerald-200 px-1 py-0.2 rounded text-[10px]">0</span>
+          </button>
+          <button onclick="openBillDeleteModal()" class="bg-rose-50 text-rose-700 border border-rose-300 px-2 py-1.5 rounded-xl text-xs font-black cursor-pointer" title="बिल हटाएं">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TOOLS PANEL -->
+      <div class="fluid-panel p-2.5 space-y-2">
+        <div class="flex items-center justify-between border-b pb-1">
+          <span class="text-xs font-black text-slate-700 uppercase flex items-center gap-1">
+            <i class="fa-solid fa-bolt text-emerald-600 text-xs"></i> 
+            <span data-i18n="step_tools">3. टूल्स व रिपोर्ट</span>
+          </span>
+          <button onclick="openChangePasswordModal('customerDelete')" class="text-[9px] font-black text-rose-800 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200 cursor-pointer">
+            🔑 <span id="custDelPinBtnLabel">डिलीट पिन</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5">
+          <button onclick="openDueReportModal()" class="btn-rose text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow flex items-center justify-center gap-1">
+            <i class="fa-solid fa-clock-rotate-left"></i> <span>बाकी रिपोर्ट ⚠️</span>
+          </button>
+          <button onclick="openDepositReportModal()" class="btn-emerald text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow flex items-center justify-center gap-1">
+            <i class="fa-solid fa-receipt text-amber-300"></i> <span>जमा रिपोर्ट</span>
+          </button>
+          <button onclick="openItemMasterModal()" class="btn-indigo text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow-xs flex items-center justify-center gap-1">
+            <i class="fa-solid fa-list-check"></i> <span>आइटम लिस्ट</span>
+          </button>
+          <button onclick="openHistoryModal()" class="btn-purple text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow-xs flex items-center justify-center gap-1">
+            <i class="fa-solid fa-book-bookmark"></i> <span data-i18n="btn_ledger">खाता बही</span>
+          </button>
+          <button onclick="openTrashModal()" class="btn-slate text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow-xs flex items-center justify-center gap-1">
+            <i class="fa-solid fa-trash-can-arrow-up"></i> <span>बिन (<span id="trashCount">0</span>)</span>
+          </button>
+          <button onclick="openBackupRestoreModal()" class="btn-blue text-white rounded-xl py-2 px-1 text-[11px] font-black cursor-pointer text-center shadow-xs flex items-center justify-center gap-1">
+            <i class="fa-solid fa-hard-drive"></i> <span>बैकअप/ड्राइव</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CUSTOMER ALL TIME TOTAL -->
+      <div class="fluid-panel p-2.5 bg-gradient-to-br from-purple-50 via-white to-purple-50 border-2 border-purple-200 flex-1 flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-black text-purple-900 uppercase flex items-center gap-1">
+              <i class="fa-solid fa-wallet text-purple-700"></i> <span data-i18n="tot_cust_all">ग्राहक कुल खाता</span>
+            </span>
+            <span id="custMultiDateWarningBadge" class="text-[9px] bg-purple-200 text-purple-950 px-2 py-0.2 rounded-full font-bold">1 तारीख</span>
+          </div>
+          <div class="text-xl font-black text-purple-950 font-mono">
+            ₹<span id="allTimeTotal">0.00</span>
+          </div>
+        </div>
+
+        <div class="pt-1.5 border-t border-purple-200 text-[11px] font-bold flex justify-between items-center">
+          <span class="text-emerald-700">जमा: ₹<span id="allTimePaidDisplay">0.00</span></span>
+          <span class="text-rose-700 font-extrabold">बाकी: ₹<span id="allTimeDueDisplay">0.00</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT CANVAS WORKSTATION -->
+    <section id="workstationCanvas" class="flex-1 min-w-0 flex flex-col fluid-bill-canvas p-2 sm:p-3 overflow-hidden relative">
+      <div class="h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 -mx-2 -mt-2 sm:-mx-3 sm:-mt-3 mb-1.5"></div>
+
+      <!-- Bill Top Bar -->
+      <div class="flex flex-wrap justify-between items-center pb-1.5 border-b border-slate-200 flex-none gap-1 text-xs">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[9px] font-black bg-emerald-50 text-emerald-950 px-2 py-0.5 rounded-full border border-amber-300">
+            ॥ श्री सुकृत देवाय नमः ॥
+          </span>
+          <span class="font-black text-slate-800 text-xs hidden sm:inline" data-i18n="store_name">विहंगम किराना स्टोर</span>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg">
+            <span class="text-slate-400 font-bold text-[10px]">ग्राहक:</span>
+            <span id="billCustomerNameDisplay" class="text-emerald-800 font-black text-xs max-w-[100px] sm:max-w-none truncate">--</span>
+          </div>
+
+          <div class="bg-emerald-50 border border-emerald-300 text-emerald-950 px-2 py-0.5 rounded-lg font-black text-[11px] font-mono">
+            <span id="billPrintDateFormatted">--/--/----</span>
+          </div>
+
+          <div class="bg-slate-900 text-white px-2 py-0.5 rounded-lg font-black font-mono text-[11px]">
+            P.<span id="billPageNumber" class="text-emerald-300">1</span>
+          </div>
+
+          <div class="no-print flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            <button id="viewSingleDateBtn" onclick="switchBillView('single')" class="px-2 py-0.5 rounded font-black text-[11px] bg-white text-emerald-800 shadow-xs cursor-pointer">बिल</button>
+            <button id="viewAllLedgerBtn" onclick="switchBillView('ledger')" class="px-2 py-0.5 rounded font-bold text-[11px] text-slate-500 cursor-pointer">खाता</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <div id="singleDateViewContainer" class="flex-1 min-h-0 flex flex-col mt-1.5">
+        <div id="itemsTableContainer" class="flex-1 min-h-0 overflow-y-auto border border-slate-200 rounded-xl shadow-inner bg-white">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-slate-900 text-white uppercase text-[11px] sticky top-0 z-10">
+              <tr>
+                <th class="py-1.5 px-2 text-center w-8 font-black">क्र.</th>
+                <th class="py-1.5 px-2 font-black">सामान का नाम (Item)</th>
+                <th class="py-1.5 px-2 w-24 sm:w-36 text-right font-black">मूल्य (₹)</th>
+                <th class="py-1.5 px-1.5 w-8 text-center no-print font-black"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <!-- BOTTOM BILL CONTROLS & TOTALS (Compact for Mobile) -->
+        <div class="flex-none mt-1.5 p-2 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 shadow-inner">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 items-center text-xs font-mono font-black">
+            
+            <!-- Gross Total -->
+            <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-xs flex justify-between items-center">
+              <span class="text-[10px] text-slate-500 font-sans font-extrabold uppercase">कुल:</span>
+              <span class="text-sm sm:text-base font-black text-slate-900">₹<span id="billGrossAmount">0.00</span></span>
+            </div>
+
+            <!-- Payment / Deposit Card -->
+            <div class="bg-amber-50 px-2 py-1 rounded-lg border border-amber-300 flex flex-col justify-center">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-1">
+                  <span class="text-[10px] text-amber-900 font-sans font-black">जमा (-):</span>
+                  <button type="button" onclick="printCurrentDepositReceipt()" title="रसीद" 
+                    class="bg-amber-200 text-amber-950 px-1 py-0.2 rounded text-[9px] font-black border border-amber-400">
+                    🧾
+                  </button>
+                </div>
+                <div class="flex items-center gap-0.5">
+                  <span class="text-amber-800 text-xs">₹</span>
+                  <input type="number" min="0" step="any" id="billPaidInput" oninput="updateBillPaidAmount(this.value)" placeholder="0" inputmode="decimal"
+                    class="w-16 sm:w-24 input-fluid-amber py-0.5 px-1 text-right rounded font-black text-slate-900 text-xs focus:outline-none">
+                </div>
+              </div>
+              <div class="mt-0.5 pt-0.5 border-t border-amber-200 flex items-center gap-1">
+                <span class="text-[9px] text-amber-900 font-sans whitespace-nowrap">दाता:</span>
+                <input type="text" id="billPaidByInput" oninput="updateBillPaidBy(this.value)" placeholder="स्वयं/बेटा..." 
+                  class="w-full input-fluid-amber py-0.2 px-1 rounded text-[9px] font-bold text-slate-800">
+              </div>
+            </div>
+
+            <!-- Net Due Card -->
+            <div class="bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-300 shadow-xs flex justify-between items-center" id="netDueCard">
+              <span class="text-[10px] text-rose-800 font-sans font-black uppercase">बाकी:</span>
+              <span class="text-sm sm:text-base font-black text-rose-950">₹<span id="billNetDueAmount">0.00</span></span>
+            </div>
+
+            <!-- Quick Add buttons -->
+            <div class="flex gap-1 items-center no-print">
+              <button onclick="openUnifiedModal('bulk')" class="flex-1 btn-emerald text-white py-1.5 px-1.5 rounded-lg font-black text-xs cursor-pointer shadow flex items-center justify-center gap-1">
+                <i class="fa-solid fa-layer-group"></i> <span>+ सामान</span>
+              </button>
+              <button onclick="addNewRow()" class="btn-indigo text-white py-1.5 px-2 rounded-lg font-black text-xs cursor-pointer shadow" title="खाली पंक्ति जोड़ें">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEDGER VIEW -->
+      <div id="allDatesLedgerContainer" class="hidden flex-1 min-h-0 overflow-y-auto mt-1.5 space-y-2 pr-0.5"></div>
+
+      <!-- DESKTOP SUMMARY FOOTER -->
+      <div class="hidden lg:grid flex-none mt-2 pt-1.5 border-t border-slate-200 grid-cols-3 gap-2">
+        <div class="bg-emerald-50 border border-emerald-300 rounded-xl px-3 py-1.5 flex justify-between items-center">
+          <div>
+            <div class="text-[11px] text-emerald-800 font-extrabold">📅 इस तारीख: <span id="summarySelectedDateText" class="font-mono">--/--</span></div>
+            <div class="text-[10px] font-black text-emerald-700">जमा: ₹<span id="currentDatePaidDisplay">0.00</span> | बाकी: ₹<span id="currentDateDueDisplay">0.00</span></div>
+          </div>
+          <div class="text-base font-black text-emerald-950 font-mono">₹<span id="currentDateSeparateTotal">0.00</span></div>
+        </div>
+
+        <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-xl px-3 py-1.5 flex justify-between items-center shadow">
+          <div>
+            <div class="text-[11px] font-black uppercase text-emerald-100 flex items-center gap-1">
+              <i class="fa-solid fa-crown text-amber-300"></i> <span>दुकान महा-योग:</span>
+            </div>
+            <div class="text-[10px] text-emerald-200">जमा: ₹<span id="storeGrandPaidDisplay">0.00</span> | <span class="text-amber-300 font-black">बकाया: ₹<span id="storeGrandDueDisplay">0.00</span></span></div>
+          </div>
+          <div class="text-base font-black text-white font-mono">₹<span id="allCustomersGrandTotal">0.00</span></div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex justify-between items-center text-[11px] text-slate-500 font-bold">
+          <div>॥ धन्यवाद! फिर पधारें ॥</div>
+          <div class="text-right font-black text-slate-800">हस्ताक्षर: _____</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 📱 MOBILE BOTTOM NAVIGATION BAR (POCO M4 PRO 5G OPTIMIZED) -->
+  <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 h-13 bg-slate-900 text-white flex items-center justify-around border-t border-slate-800 z-40 px-1 shadow-2xl">
+    <button onclick="mobileSwitchTab('bill')" id="mobNavBill" class="flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 font-black transition">
+      <i class="fa-solid fa-receipt text-base"></i>
+      <span class="text-[10px] mt-0.5">बिल</span>
+    </button>
+    <button onclick="mobileSwitchTab('customer')" id="mobNavCust" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 font-bold transition">
+      <i class="fa-solid fa-user-check text-base"></i>
+      <span class="text-[10px] mt-0.5">ग्राहक</span>
+    </button>
+    <button onclick="openQuickDepositModal()" class="flex flex-col items-center justify-center flex-1 py-1 text-amber-400 font-black transition">
+      <div class="w-8 h-8 -mt-4 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900">
+        <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
+      </div>
+      <span class="text-[10px] mt-0.5">जमा 💰</span>
+    </button>
+    <button onclick="openDueReportModal()" class="flex flex-col items-center justify-center flex-1 py-1 text-rose-400 font-bold transition">
+      <i class="fa-solid fa-clock-rotate-left text-base"></i>
+      <span class="text-[10px] mt-0.5">बाकी ⚠️</span>
+    </button>
+    <button onclick="openMoreMenuModal()" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 font-bold transition">
+      <i class="fa-solid fa-bars text-base"></i>
+      <span class="text-[10px] mt-0.5">मेन्यू</span>
+    </button>
+  </nav>
+
+  <!-- MOBILE "MORE MENU" MODAL -->
+  <div id="moreMenuModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[99] flex items-end sm:items-center justify-center p-2">
+    <div class="fluid-panel max-w-sm w-full p-4 border-2 border-indigo-500 shadow-2xl rounded-2xl">
+      <div class="flex justify-between items-center border-b pb-2 mb-2.5">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-gear text-indigo-600"></i> सभी फीचर्स एवं टूल्स
+        </h3>
+        <button onclick="closeMoreMenuModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button onclick="closeMoreMenuModal(); openDepositReportModal();" class="btn-emerald text-white p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-receipt text-amber-300"></i> <span>जमा रिपोर्ट</span>
+        </button>
+        <button onclick="closeMoreMenuModal(); openItemMasterModal();" class="btn-indigo text-white p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-list-check"></i> <span>आइटम लिस्ट</span>
+        </button>
+        <button onclick="closeMoreMenuModal(); openHistoryModal();" class="btn-purple text-white p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-book-bookmark"></i> <span>खाता बही</span>
+        </button>
+        <button onclick="closeMoreMenuModal(); openBackupRestoreModal();" class="btn-blue text-white p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-hard-drive"></i> <span>बैकअप/ड्राइव</span>
+        </button>
+        <button onclick="closeMoreMenuModal(); openChangePasswordModal('login');" class="btn-amber text-slate-950 p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-key"></i> <span>पिन बदलें</span>
+        </button>
+        <button onclick="closeMoreMenuModal(); openTrashModal();" class="btn-slate text-white p-2.5 rounded-xl font-black flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-trash-can-arrow-up"></i> <span>रीसायकल बिन</span>
+        </button>
+      </div>
+
+      <div class="mt-3 pt-2.5 border-t flex gap-2">
+        <button onclick="closeMoreMenuModal(); window.print();" class="flex-1 btn-blue text-white py-2 rounded-xl text-xs font-black">
+          <i class="fa-solid fa-print mr-1"></i> प्रिंट बिल
+        </button>
+        <button onclick="closeMoreMenuModal(); handleLogout();" class="flex-1 btn-rose text-white py-2 rounded-xl text-xs font-black">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> लॉगआउट
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTSTANDING DUE REPORT MODAL -->
+  <div id="dueReportModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[92] flex items-center justify-center p-2 sm:p-4">
+    <div class="fluid-panel max-w-4xl w-full p-3 sm:p-5 shadow-2xl flex flex-col max-h-[94vh] border-2 border-rose-500 bg-white">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900">उधार एवं बाकी रिपोर्ट</h3>
+            <p class="text-[10px] text-slate-500 font-bold">ग्राहकों का शुद्ध बकाया एवं व्हाट्सएप तकादा</p>
+          </div>
+        </div>
+        <button onclick="closeDueReportModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-black text-sm">&times;</button>
+      </div>
+
+      <!-- Due Summary Tiles -->
+      <div class="grid grid-cols-3 gap-1.5 mb-2 font-mono text-center">
+        <div class="bg-rose-50 border border-rose-300 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-rose-800 font-sans">कुल बकाया:</div>
+          <div class="text-xs sm:text-lg font-black text-rose-950">₹<span id="dueReportTotalMarketDue">0.00</span></div>
+        </div>
+        <div class="bg-amber-50 border border-amber-300 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-amber-800 font-sans">बाकीदार:</div>
+          <div class="text-xs sm:text-lg font-black text-amber-950"><span id="dueReportDueCustCount">0</span> ग्राहक</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-300 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-emerald-800 font-sans">चुक्ता:</div>
+          <div class="text-xs sm:text-lg font-black text-emerald-950"><span id="dueReportClearedCustCount">0</span> ग्राहक</div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="bg-gradient-to-r from-rose-50 to-orange-50 p-1.5 rounded-lg border border-rose-200 mb-2 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs">
+        <input type="text" id="dueSearchInput" oninput="renderDueReportTable()" placeholder="🔍 ग्राहक खोजें..." class="input-fluid p-1.5 rounded-lg font-bold text-xs">
+        <select id="dueFilterStatus" onchange="renderDueReportTable()" class="input-fluid p-1.5 rounded-lg font-bold text-xs">
+          <option value="due_only">⚠️ केवल बकाया वाले (Pending)</option>
+          <option value="cleared_only">✓ केवल चुक्ता (Zero Due)</option>
+          <option value="all">👥 सभी ग्राहक (All)</option>
+        </select>
+        <select id="dueSortOrder" onchange="renderDueReportTable()" class="input-fluid p-1.5 rounded-lg font-bold text-xs">
+          <option value="highest_first">⬇️ ज्यादा बाकी पहले</option>
+          <option value="lowest_first">⬆️ कम बाकी पहले</option>
+          <option value="name_asc">🔤 नाम अनुसार (A to Z)</option>
+        </select>
+      </div>
+
+      <!-- Due Table (Horizontal Scroll on Mobile) -->
+      <div class="overflow-x-auto overflow-y-auto flex-grow border border-slate-200 rounded-xl shadow-inner bg-white">
+        <table class="w-full text-left text-xs min-w-[550px]">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px] uppercase">
+            <tr>
+              <th class="p-2 text-center w-8">क्र.</th>
+              <th class="p-2 text-center w-12">पेज</th>
+              <th class="p-2">ग्राहक</th>
+              <th class="p-2 text-right">कुल बिल</th>
+              <th class="p-2 text-right text-emerald-300">कुल जमा</th>
+              <th class="p-2 text-right text-rose-300 font-black">शुद्ध बाकी</th>
+              <th class="p-2 text-center w-36">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody id="dueReportTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <!-- Actions Footer -->
+      <div class="flex justify-between items-center pt-2 mt-1.5 border-t text-xs">
+        <div class="flex gap-1.5">
+          <button onclick="printDueReportDirect()" class="btn-blue text-white px-2.5 py-1.5 rounded-lg font-black cursor-pointer shadow-xs text-xs">
+            <i class="fa-solid fa-print mr-1"></i> प्रिंट
+          </button>
+          <button onclick="exportDueReportCSV()" class="bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-lg font-black cursor-pointer shadow-xs text-xs">
+            <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> एक्सेल
+          </button>
+        </div>
+        <button onclick="closeDueReportModal()" class="btn-slate text-white px-4 py-1.5 rounded-lg font-bold cursor-pointer text-xs">
+          बंद करें
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK DEPOSIT ACTION MODAL -->
+  <div id="quickDepositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[95] flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 border-2 border-amber-500 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <div class="flex items-center gap-1.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-black text-sm">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900">पैसे जमा दर्ज करें (Pay In)</h3>
+            <p class="text-[10px] text-slate-500 font-bold">खाते में जमा रसीद जोड़ें</p>
+          </div>
+        </div>
+        <button onclick="closeQuickDepositModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+
+      <form onsubmit="handleQuickDepositSubmit(event)" class="space-y-2 text-xs font-bold text-slate-700">
+        <div>
+          <label class="block mb-0.5 text-slate-600">ग्राहक चुनें:</label>
+          <select id="quickDepositCustomerSelect" class="w-full input-fluid p-2 rounded-xl font-bold text-xs"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block mb-0.5 text-slate-600">तारीख:</label>
+            <input type="date" id="quickDepositDate" required class="w-full input-fluid p-1.5 rounded-xl font-mono text-xs">
+          </div>
+          <div>
+            <label class="block mb-0.5 text-slate-600">माध्यम (Mode):</label>
+            <select id="quickDepositMode" class="w-full input-fluid p-1.5 rounded-xl font-bold text-xs">
+              <option value="नकद (Cash)">💵 नकद (Cash)</option>
+              <option value="PhonePe">📱 PhonePe</option>
+              <option value="Google Pay">📱 Google Pay</option>
+              <option value="Paytm">📱 Paytm</option>
+              <option value="अन्य UPI">🏦 बैंक / UPI</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-0.5 font-extrabold text-amber-900 text-xs">जमा राशि (Amount ₹):</label>
+          <input type="number" min="1" step="any" id="quickDepositAmount" required placeholder="0.00" inputmode="decimal"
+            class="w-full input-fluid-amber p-2.5 text-2xl font-black text-slate-900 text-center font-mono rounded-xl focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block mb-0.5 text-slate-700">पैसे जमा करने वाले का नाम (जमाकर्ता):</label>
+          <input type="text" id="quickDepositPayerName" placeholder="उदा: स्वयं / बेटा (अमित) / भाई..." 
+            class="w-full input-fluid p-2 rounded-xl font-bold text-slate-900 text-xs">
+        </div>
+
+        <div>
+          <label class="block mb-0.5 text-slate-500">टिप्पणी / विवरण (वैकल्पिक):</label>
+          <input type="text" id="quickDepositNote" placeholder="उदा: पुराना बाकी दिया..." class="w-full input-fluid p-1.5 rounded-xl text-xs">
+        </div>
+
+        <div class="flex gap-2 pt-1.5">
+          <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs cursor-pointer shadow">
+            ✓ जमा सुरक्षित करें
+          </button>
+          <button type="button" onclick="closeQuickDepositModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs cursor-pointer">
+            रद्द
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT DEPOSIT MODAL -->
+  <div id="editDepositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[96] flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-sm w-full p-4 border-2 border-emerald-500 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-pen-to-square text-emerald-600"></i> जमा विवरण सुधारें
+        </h3>
+        <button onclick="closeEditDepositModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+      <form onsubmit="handleSaveEditDeposit(event)" class="space-y-2 text-xs font-bold text-slate-700">
+        <input type="hidden" id="editDepositCustId">
+        <input type="hidden" id="editDepositDateKey">
+        <div>
+          <label class="block mb-0.5 text-slate-600">जमा राशि (₹):</label>
+          <input type="number" min="0" step="any" id="editDepositAmountInput" required inputmode="decimal" class="w-full input-fluid-amber p-2 text-xl font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5 text-slate-600">जमाकर्ता (किसने दिए):</label>
+          <input type="text" id="editDepositPayerInput" placeholder="उदा: स्वयं / बेटा..." class="w-full input-fluid p-2 rounded-xl font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="block mb-0.5 text-slate-600">माध्यम (Mode):</label>
+          <select id="editDepositModeInput" class="w-full input-fluid p-2 rounded-xl font-bold text-xs">
+            <option value="नकद (Cash)">💵 नकद (Cash)</option>
+            <option value="PhonePe">📱 PhonePe</option>
+            <option value="Google Pay">📱 Google Pay</option>
+            <option value="Paytm">📱 Paytm</option>
+            <option value="अन्य UPI">🏦 बैंक / UPI</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-0.5 text-slate-600">टिप्पणी / विवरण:</label>
+          <input type="text" id="editDepositNoteInput" placeholder="विवरण..." class="w-full input-fluid p-1.5 rounded-xl">
+        </div>
+        <div class="flex gap-2 pt-1.5">
+          <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs">
+            ✓ सुधार सुरक्षित करें
+          </button>
+          <button type="button" onclick="closeEditDepositModal()" class="btn-slate text-white px-3 py-2 rounded-xl text-xs">
+            रद्द
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DEPOSIT REPORT MODAL -->
+  <div id="depositReportModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[90] flex items-center justify-center p-2 sm:p-4">
+    <div class="fluid-panel max-w-4xl w-full p-3 sm:p-5 shadow-2xl flex flex-col max-h-[94vh] border-2 border-emerald-500 bg-white">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-receipt"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900">ग्राहक जमा / भुगतान रिपोर्ट</h3>
+            <p class="text-[10px] text-slate-500 font-bold">जमा राशियों एवं जमाकर्ता का रिकॉर्ड</p>
+          </div>
+        </div>
+        <button onclick="closeDepositReportModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-black text-sm">&times;</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-2 border border-slate-200 text-xs font-black gap-1 flex-none">
+        <button id="depositTabCurrentCust" onclick="switchDepositReportTab('current')" class="flex-1 py-1.5 rounded-lg bg-white text-emerald-900 shadow-xs text-xs font-black">
+          👤 सक्रिय ग्राहक (<span id="depCurrentCustTabName">--</span>)
+        </button>
+        <button id="depositTabAllCust" onclick="switchDepositReportTab('all')" class="flex-1 py-1.5 rounded-lg text-slate-500 text-xs font-black">
+          🏪 पूरी दुकान की जमा
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-1.5 rounded-lg border border-emerald-200 mb-2 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs flex-none">
+        <input type="text" id="depositSearchInput" oninput="renderDepositReportTable()" placeholder="🔍 ग्राहक या जमाकर्ता नाम..." class="input-fluid p-1.5 rounded-lg font-bold text-xs">
+        <input type="date" id="depositDateFilter" onchange="renderDepositReportTable()" class="input-fluid p-1.5 rounded-lg font-bold text-xs">
+        <button onclick="setDepositTodayFilter()" class="bg-emerald-600 text-white font-black px-2.5 py-1.5 rounded-lg text-xs">
+          📅 आज की जमा देखें
+        </button>
+      </div>
+
+      <!-- Summary -->
+      <div class="grid grid-cols-3 gap-1.5 mb-2 font-mono text-center flex-none">
+        <div class="bg-emerald-50 border border-emerald-300 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-emerald-800 font-sans">कुल प्राप्त:</div>
+          <div class="text-xs sm:text-base font-black text-emerald-950">₹<span id="depReportTotalPaid">0.00</span></div>
+        </div>
+        <div class="bg-amber-50 border border-amber-300 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-amber-800 font-sans">कुल बार:</div>
+          <div class="text-xs sm:text-base font-black text-amber-950"><span id="depReportCount">0</span> बार</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 p-1.5 rounded-lg">
+          <div class="text-[9px] font-extrabold text-purple-800 font-sans">शुद्ध बाकी:</div>
+          <div class="text-xs sm:text-base font-black text-purple-950">₹<span id="depReportBalanceDue">0.00</span></div>
+        </div>
+      </div>
+
+      <!-- Table (Horizontal Scroll on Mobile) -->
+      <div class="overflow-x-auto overflow-y-auto flex-grow border border-slate-200 rounded-xl shadow-inner bg-white">
+        <table class="w-full text-left text-xs min-w-[550px]">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px] uppercase">
+            <tr>
+              <th class="p-2 text-center w-8">क्र.</th>
+              <th class="p-2">तारीख</th>
+              <th class="p-2">ग्राहक</th>
+              <th class="p-2">जमाकर्ता</th>
+              <th class="p-2 text-right">बिल (₹)</th>
+              <th class="p-2 text-right text-emerald-300 font-extrabold">जमा (₹)</th>
+              <th class="p-2 text-right text-rose-300">बाकी</th>
+              <th class="p-2 text-center w-28">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody id="depositReportTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 mt-1.5 border-t text-xs">
+        <button onclick="exportDepositReportCSV()" class="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-black text-xs">
+          <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> एक्सेल
+        </button>
+        <button onclick="closeDepositReportModal()" class="btn-slate text-white px-4 py-1.5 rounded-lg font-bold text-xs">
+          बंद करें
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINTABLE RECEIPT SLIP MODAL -->
+  <div id="depositReceiptModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-3">
+    <div id="depositReceiptSlipBox" class="bg-white rounded-2xl border-2 border-emerald-500 max-w-sm w-full p-4 shadow-2xl relative text-slate-900">
+      <div class="text-center pb-2 border-b border-dashed border-slate-300">
+        <div class="text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5">॥ श्री सुकृत देवाय नमः ॥</div>
+        <h2 class="text-lg font-black text-slate-900">विहंगम किराना स्टोर</h2>
+        <div class="inline-block mt-1 bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-full text-[10px] font-black">
+          💰 नकद जमा पावती (Payment Slip)
+        </div>
+      </div>
+
+      <div class="py-2.5 space-y-1 text-xs font-bold">
+        <div class="flex justify-between">
+          <span class="text-slate-500">रसीद नं:</span>
+          <span id="receiptRefNo" class="font-mono font-black text-slate-800">REC-001</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">तारीख:</span>
+          <span id="receiptDateDisplay" class="font-mono font-black text-slate-800">--/--/----</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">ग्राहक:</span>
+          <span id="receiptCustomerDisplay" class="font-black text-emerald-800 text-xs">--</span>
+        </div>
+        <div class="flex justify-between bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+          <span class="text-amber-900 font-extrabold text-[11px]">जमाकर्ता:</span>
+          <span id="receiptPayerDisplay" class="font-black text-slate-900 text-xs">स्वयं</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">माध्यम:</span>
+          <span id="receiptModeDisplay" class="font-black text-slate-700">नकद (Cash)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">खाता पेज:</span>
+          <span id="receiptPageNo" class="font-mono font-black text-slate-800">P.1</span>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-2.5 my-1.5 text-center">
+        <div class="text-[10px] font-black text-emerald-800 uppercase">जमा राशि</div>
+        <div class="text-2xl font-black text-emerald-950 font-mono tracking-tight my-0.5">
+          ₹<span id="receiptAmountDisplay">0.00</span>
+        </div>
+        <div id="receiptAmountWords" class="text-[10px] font-black text-emerald-800 italic"></div>
+      </div>
+
+      <div class="py-1.5 border-t border-dashed border-slate-300 space-y-0.5 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-500">बिल राशि:</span>
+          <span class="font-mono font-bold text-slate-800">₹<span id="receiptDateGross">0.00</span></span>
+        </div>
+        <div class="flex justify-between font-black">
+          <span class="text-rose-700">कुल बाकी बकाया:</span>
+          <span class="font-mono text-rose-800 text-xs">₹<span id="receiptNetDue">0.00</span></span>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-200 mt-1 flex justify-between items-end text-[10px]">
+        <div class="text-slate-400">धन्यवाद! फिर पधारें।</div>
+        <div class="text-right font-black border-t border-slate-400 pt-0.5 px-2">हस्ताक्षर / मुहर</div>
+      </div>
+
+      <div class="flex gap-1.5 mt-3 pt-2 border-t no-print">
+        <button onclick="printDepositReceiptDirect()" class="flex-1 btn-emerald text-white py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-print"></i> <span>प्रिंट</span>
+        </button>
+        <button onclick="shareReceiptOnWhatsApp()" class="btn-emerald bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 cursor-pointer">
+          <i class="fa-brands fa-whatsapp text-sm"></i> <span>WhatsApp</span>
+        </button>
+        <button onclick="closeDepositReceiptModal()" class="btn-slate text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">
+          बंद
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEM MASTER MODAL -->
+  <div id="itemMasterModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 shadow-2xl border-2 border-emerald-500 flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-list-check text-emerald-600"></i> सामान लिस्ट प्रबंधन
+        </h3>
+        <button onclick="closeItemMasterModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+
+      <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-200 mb-2">
+        <label class="block text-[11px] font-black text-emerald-950 mb-1">+ नया सामान जोड़ें:</label>
+        <div class="flex gap-1.5">
+          <input type="text" id="newMasterItemInput" placeholder="उदा: चना दाल, नमक..." onkeydown="if(event.key==='Enter') addNewItemToMaster();"
+            class="flex-1 input-fluid p-1.5 rounded-lg text-xs font-bold text-slate-900">
+          <button onclick="addNewItemToMaster()" class="btn-emerald text-white px-3 py-1.5 rounded-lg text-xs font-black">
+            जोड़ें
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-1.5">
+        <input type="text" id="searchMasterItemInput" oninput="renderItemMasterList(this.value)" placeholder="🔍 खोजें..." 
+          class="w-full input-fluid p-1.5 rounded-lg text-xs font-bold text-slate-800">
+      </div>
+
+      <div class="overflow-y-auto flex-grow border border-slate-200 rounded-xl shadow-inner bg-white">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px]">
+            <tr>
+              <th class="p-1.5 w-8 text-center">क्र.</th>
+              <th class="p-1.5">सामान का नाम</th>
+              <th class="p-1.5 w-20 text-center">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody id="itemMasterTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t mt-2 text-xs">
+        <button onclick="resetItemMasterToDefault()" class="text-rose-600 font-black text-[11px] hover:underline cursor-pointer">
+          ↺ डिफ़ॉल्ट रीसेट
+        </button>
+        <button onclick="closeItemMasterModal()" class="btn-slate text-white px-4 py-1.5 rounded-lg font-bold text-xs">
+          बंद करें
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK CUSTOMER MODAL -->
+  <div id="bulkCustomerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-sm w-full p-4 shadow-2xl border-2 border-indigo-500 flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-users-plus text-indigo-600"></i> एक साथ कई ग्राहक जोड़ें
+        </h3>
+        <button onclick="closeBulkCustomerModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+      <div class="space-y-2 flex-grow flex flex-col text-xs">
+        <span class="text-slate-500 font-bold text-[11px]">प्रत्येक नाम नई लाइन में लिखें:</span>
+        <textarea id="bulkCustomerTextarea" rows="6" placeholder="सुरेश कुमार&#10;रमेश गुप्ता&#10;सोनू किराना" class="w-full input-fluid p-2 rounded-xl font-bold text-slate-900 text-xs resize-none"></textarea>
+        <div class="flex gap-2 pt-1 border-t">
+          <button type="button" onclick="handleBulkCustomersSubmit()" class="flex-1 btn-indigo text-white py-2 rounded-xl font-black text-xs">
+            सभी जोड़ें (PIN)
+          </button>
+          <button type="button" onclick="closeBulkCustomerModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">
+            रद्द
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILL DELETE MODAL -->
+  <div id="billDeleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh] border-2 border-rose-500">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1">
+          <span>बिल हटाएं:</span>
+          <span id="delModalCustomerNameBadge" class="bg-rose-50 text-rose-800 border border-rose-300 px-1.5 py-0.2 rounded text-xs font-black"></span>
+        </h3>
+        <button onclick="closeBillDeleteModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+      <div class="overflow-y-auto flex-grow border border-slate-200 rounded-xl mb-2">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px]">
+            <tr>
+              <th class="p-1.5">तारीख</th>
+              <th class="p-1.5 text-center">संख्या</th>
+              <th class="p-1.5 text-right">बिल (₹)</th>
+              <th class="p-1.5 text-center w-16">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody id="delModalBillsTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+      <div class="flex justify-end pt-1 border-t text-xs">
+        <button onclick="closeBillDeleteModal()" class="btn-slate text-white px-4 py-1.5 rounded-lg text-xs font-bold">
+          बंद करें
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN VERIFY MODAL -->
+  <div id="pinVerifyModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden z-[70] flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-xs w-full p-4 border-2 border-rose-500 shadow-2xl text-center">
+      <div class="w-10 h-10 mx-auto rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg mb-2">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h3 class="text-sm font-black text-slate-900 mb-0.5" id="pinVerifyActionTitle">सुरक्षा पिन दर्ज करें</h3>
+      <p class="text-[11px] text-slate-600 font-bold mb-2.5" id="pinVerifyActionDesc">कार्रवाई पूर्ण करने के लिए PIN दर्ज करें:</p>
+
+      <form onsubmit="handlePinVerificationSubmit(event)" class="space-y-2.5">
+        <input type="password" id="actionVerifyPinInput" maxlength="6" required placeholder="••••••" autocomplete="new-password" inputmode="numeric"
+          class="w-full input-fluid py-2 text-center text-2xl tracking-[0.3em] font-black text-slate-900 rounded-xl focus:outline-none">
+        <div id="pinVerifyError" class="hidden text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 p-1 rounded-lg"></div>
+
+        <div class="flex gap-1.5 pt-1">
+          <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs cursor-pointer">
+            <span id="pinVerifyBtnConfirmText">पुष्टि करें</span>
+          </button>
+          <button type="button" onclick="closePinVerifyModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs cursor-pointer">
+            रद्द
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PIN MANAGEMENT MODAL -->
+  <div id="changePasswordModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-sm w-full p-4 border-2 border-amber-500 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-key text-amber-600"></i> सुरक्षा PIN प्रबंधन
+        </h3>
+        <button onclick="closeChangePasswordModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs">&times;</button>
+      </div>
+
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-2.5 border border-slate-200 text-xs font-black gap-1">
+        <button id="tabChangeLoginPinBtn" onclick="switchChangePinTab('login')" class="flex-1 py-1 rounded-lg bg-white text-emerald-900 shadow-xs">
+          लॉगिन
+        </button>
+        <button id="tabChangeCustAddPinBtn" onclick="switchChangePinTab('customerAdd')" class="flex-1 py-1 rounded-lg text-slate-500">
+          ऐड ग्राहक
+        </button>
+        <button id="tabChangeCustDeletePinBtn" onclick="switchChangePinTab('customerDelete')" class="flex-1 py-1 rounded-lg text-slate-500">
+          डिलीट
+        </button>
+      </div>
+
+      <form id="formChangeLoginPin" onsubmit="handleChangeLoginPinSubmit(event)" class="space-y-2 text-xs font-bold text-slate-700">
+        <div>
+          <label class="block mb-0.5">वर्तमान लॉगिन PIN:</label>
+          <input type="password" id="oldLoginPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-1.5 text-center text-base tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">नया 6-अंकों का PIN:</label>
+          <input type="password" id="newLoginPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center text-base tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">पुनः दर्ज करें:</label>
+          <input type="password" id="confirmNewLoginPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center text-base tracking-widest font-black rounded-xl">
+        </div>
+        <div id="changeLoginPinMsg" class="hidden text-[10px] font-black p-1 rounded text-center"></div>
+        <div class="flex gap-2 pt-1">
+          <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs">अपडेट करें</button>
+          <button type="button" onclick="closeChangePasswordModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">बंद</button>
+        </div>
+      </form>
+
+      <form id="formChangeCustAddPin" onsubmit="handleChangeCustAddPinSubmit(event)" class="hidden space-y-2 text-xs font-bold text-slate-700">
+        <div id="custAddPinStatusNotice" class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl text-[11px] text-emerald-950 font-bold"></div>
+        <div id="oldCustAddPinGroup">
+          <div class="flex justify-between items-center mb-0.5">
+            <label>वर्तमान पिन:</label>
+            <button type="button" onclick="resetCustAddPinWithMasterLogin()" class="text-[10px] text-indigo-700 font-extrabold hover:underline">भूल गए?</button>
+          </div>
+          <input type="password" id="oldCustAddPinInput" maxlength="6" placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">नया 6-अंकों का PIN:</label>
+          <input type="password" id="newCustAddPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">पुनः दर्ज करें:</label>
+          <input type="password" id="confirmNewCustAddPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div id="changeCustAddPinMsg" class="hidden text-[10px] font-black p-1 rounded text-center"></div>
+        <div class="flex gap-2 pt-1">
+          <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs"><span id="btnSubmitCustAddText">सुरक्षित करें</span></button>
+          <button type="button" onclick="closeChangePasswordModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">बंद</button>
+        </div>
+      </form>
+
+      <form id="formChangeCustDeletePin" onsubmit="handleChangeCustDeletePinSubmit(event)" class="hidden space-y-2 text-xs font-bold text-slate-700">
+        <div id="custDelPinStatusNotice" class="bg-rose-50 border border-rose-200 p-2 rounded-xl text-[11px] text-rose-950 font-bold"></div>
+        <div id="oldCustDelPinGroup">
+          <div class="flex justify-between items-center mb-0.5">
+            <label>वर्तमान पिन:</label>
+            <button type="button" onclick="resetCustDelPinWithMasterLogin()" class="text-[10px] text-indigo-700 font-extrabold hover:underline">भूल गए?</button>
+          </div>
+          <input type="password" id="oldCustDelPinInput" maxlength="6" placeholder="••••••" inputmode="numeric" class="w-full input-fluid p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">नया 6-अंकों का PIN:</label>
+          <input type="password" id="newCustDelPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div>
+          <label class="block mb-0.5">पुनः दर्ज करें:</label>
+          <input type="password" id="confirmNewCustDelPinInput" maxlength="6" required placeholder="••••••" inputmode="numeric" class="w-full input-fluid-amber p-1.5 text-center tracking-widest font-black rounded-xl">
+        </div>
+        <div id="changeCustDelPinMsg" class="hidden text-[10px] font-black p-1 rounded text-center"></div>
+        <div class="flex gap-2 pt-1">
+          <button type="submit" class="flex-1 btn-rose text-white py-2 rounded-xl font-black text-xs"><span id="btnSubmitCustDelText">सुरक्षित करें</span></button>
+          <button type="button" onclick="closeChangePasswordModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">बंद</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- UNIFIED ADD ITEM MODAL -->
+  <div id="unifiedItemModal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-md hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 shadow-2xl border-2 border-emerald-500 flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b pb-2 mb-2">
+        <div class="flex items-center gap-1.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900" id="unifiedModalTitle">सामान जोड़ें</h3>
+            <p class="text-[10px] text-slate-500 font-bold" id="unifiedModalSubTitle">बिल में सामान दर्ज करें</p>
+          </div>
+        </div>
+        <button onclick="closeUnifiedModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-black text-xs">&times;</button>
+      </div>
+
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-2.5 border border-slate-200 text-xs font-black">
+        <button type="button" id="tabSingleBtn" onclick="switchModalTab('single')" class="flex-1 py-1 rounded-lg text-slate-500">एक सामान</button>
+        <button type="button" id="tabBulkBtn" onclick="switchModalTab('bulk')" class="flex-1 py-1 rounded-lg bg-white text-emerald-800 shadow-xs font-black">एक साथ कई सामान</button>
+      </div>
+
+      <div id="viewSingleItem" class="hidden">
+        <form id="singleItemForm" onsubmit="handleSingleItemSubmit(event)" class="space-y-2.5 text-xs font-bold text-slate-700">
+          <div>
+            <label class="block mb-0.5">सामान का नाम:</label>
+            <input type="text" id="singleItemName" list="kiranaCommonItems" required placeholder="चीनी, तेल, दाल..." class="w-full input-fluid p-2 rounded-xl font-bold text-slate-900 text-xs">
+          </div>
+          <div>
+            <label class="block mb-0.5">मूल्य ₹:</label>
+            <input type="number" min="0" step="any" id="singleItemPrice" required placeholder="0.00" inputmode="decimal" class="w-full input-fluid-amber p-2 rounded-xl font-black text-slate-900 text-base font-mono">
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs">बिल में जोड़ें</button>
+            <button type="button" onclick="closeUnifiedModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">रद्द</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="viewBulkItems" class="flex-grow flex flex-col overflow-hidden">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-[11px] font-bold text-slate-500">सामान का नाम व मूल्य:</span>
+          <button type="button" onclick="addBulkInputRow()" class="text-[11px] text-emerald-700 font-black bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-lg">
+            + पंक्ति
+          </button>
+        </div>
+
+        <form id="bulkAddForm" onsubmit="handleBulkAddSubmit(event)" class="flex-grow flex flex-col overflow-hidden">
+          <div class="overflow-y-auto flex-grow pr-1 space-y-1.5 max-h-[42vh]" id="bulkRowsContainer"></div>
+          <div class="flex gap-2 pt-2 mt-1 border-t">
+            <button type="submit" class="flex-1 btn-emerald text-white py-2 rounded-xl font-black text-xs">
+              सभी जोड़ें
+            </button>
+            <button type="button" onclick="closeUnifiedModal()" class="btn-slate text-white px-3 py-2 rounded-xl font-bold text-xs">
+              रद्द
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKUP MODAL -->
+  <div id="backupRestoreModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh] border-2 border-teal-500">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-hard-drive text-teal-600"></i> बैकअप व ऑटो-सिंक
+        </h3>
+        <button onclick="closeBackupRestoreModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-black text-xs">&times;</button>
+      </div>
+
+      <div class="bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-300 rounded-xl p-2.5 mb-2 text-xs">
+        <div class="flex justify-between items-center pb-1.5 border-b border-blue-200">
+          <div>
+            <span class="font-black text-blue-950 uppercase text-[10px]">स्टोरेज फ़ोल्डर:</span>
+            <div id="customDrivePathDisplay" class="font-mono font-black text-blue-900 text-xs mt-0.5">(सेट नहीं है)</div>
+          </div>
+          <button onclick="pickCustomDriveFolder(false)" class="btn-blue text-white py-1 px-2.5 rounded-lg text-xs font-black">
+            📁 चुनें
+          </button>
+        </div>
+        <div class="pt-1.5 flex justify-between items-center text-xs">
+          <span id="driveAutoStatusText" class="text-slate-600 font-bold text-[10px]">लोकेशन सेट नहीं है।</span>
+          <button onclick="triggerManualSyncWithPermission()" id="btnSaveToDriveManual" class="btn-emerald text-white py-1 px-2.5 rounded-lg font-black text-xs">
+            ⚡ सिंक करें
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-2.5 mb-2 flex justify-between items-center text-xs">
+        <div>
+          <h4 class="font-black text-emerald-950 text-xs">JSON बैकअप डाउनलोड</h4>
+          <p class="text-[10px] text-emerald-800">फ़ाइल अपने फोन में सेव करें</p>
+        </div>
+        <button onclick="downloadBackupFile()" class="btn-emerald text-white py-1.5 px-3 rounded-lg text-xs font-black">
+          <i class="fa-solid fa-download mr-1"></i> डाउनलोड
+        </button>
+      </div>
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-2.5 mb-2 flex justify-between items-center text-xs">
+        <div>
+          <h4 class="font-black text-purple-950 text-xs">.JSON से रीस्टोर</h4>
+          <p class="text-[10px] text-purple-800">पुरानी फ़ाइल से डेटा लाएं</p>
+        </div>
+        <label class="btn-purple text-white py-1.5 px-3 rounded-lg text-xs font-black cursor-pointer">
+          फ़ाइल चुनें
+          <input type="file" id="backupFileInput" accept=".json" onchange="handleFileUploadRestore(event)" class="hidden">
+        </label>
+      </div>
+
+      <div class="flex justify-end pt-1.5 border-t">
+        <button onclick="closeBackupRestoreModal()" class="btn-slate text-white px-4 py-1.5 rounded-lg text-xs font-bold">
+          बंद करें
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER DATES MODAL -->
+  <div id="customerDatesModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <h3 class="text-sm font-black text-slate-900" id="custDatesModalTitle"></h3>
+        <button onclick="closeCustomerDatesModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-black text-xs">&times;</button>
+      </div>
+      <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-200 mb-2 flex items-center justify-between text-xs">
+        <span class="font-black text-emerald-950 text-[11px]">+ नई तारीख:</span>
+        <div class="flex gap-1">
+          <input type="date" id="modalNewDatePicker" class="bg-white border rounded p-1 text-xs font-black">
+          <button onclick="addNewDateFromModal()" class="btn-emerald text-white px-2 py-1 rounded text-xs font-black">जोड़ें</button>
+        </div>
+      </div>
+      <div class="overflow-y-auto flex-grow border rounded-xl shadow-inner">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px]">
+            <tr>
+              <th class="p-1.5">तारीख</th>
+              <th class="p-1.5 text-center">सामान</th>
+              <th class="p-1.5 text-right">बिल (₹)</th>
+              <th class="p-1.5 text-right text-emerald-300">जमा</th>
+              <th class="p-1.5 text-center">कार्रवाई</th>
+            </tr>
+          </thead>
+          <tbody id="custDatesPopupTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY MODAL -->
+  <div id="historyModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-2 sm:p-4">
+    <div class="fluid-panel max-w-4xl w-full p-3 sm:p-5 shadow-2xl flex flex-col max-h-[92vh] border-2 border-purple-500">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <div class="flex items-center gap-1.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-book-bookmark"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900">मास्टर बहीखाता (खाता बही)</h3>
+            <p class="text-[10px] text-slate-500 font-bold">तारीख-वार खरीद एवं जमा हिसाब</p>
+          </div>
+        </div>
+        <button onclick="closeHistoryModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 font-black text-sm">&times;</button>
+      </div>
+
+      <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-1.5 rounded-lg border border-purple-200 mb-2 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs">
+        <input type="text" id="historySearchInput" oninput="renderHistoryTable()" placeholder="🔍 ग्राहक खोजें..." class="input-fluid p-1.5 rounded-lg text-xs font-bold">
+        <select id="historyCustomerFilter" onchange="renderHistoryTable()" class="input-fluid p-1.5 rounded-lg text-xs font-bold"></select>
+        <input type="date" id="historyDateFilter" onchange="renderHistoryTable()" class="input-fluid p-1.5 rounded-lg text-xs font-bold">
+      </div>
+
+      <div class="overflow-x-auto overflow-y-auto flex-grow border border-slate-200 rounded-xl shadow-inner bg-white">
+        <table class="w-full text-left text-xs min-w-[500px]">
+          <thead class="bg-slate-900 text-white font-black sticky top-0 text-[11px] uppercase">
+            <tr>
+              <th class="p-1.5 text-center w-8">क्र.</th>
+              <th class="p-1.5">ग्राहक</th>
+              <th class="p-1.5 text-center">तारीख</th>
+              <th class="p-1.5 text-right">बिल (₹)</th>
+              <th class="p-1.5 text-right text-emerald-300">जमा (₹)</th>
+              <th class="p-1.5 text-right text-rose-300">अंतर</th>
+              <th class="p-1.5 text-center w-14">खोलें</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="mt-2 pt-1.5 border-t flex justify-between items-center text-xs font-mono font-black">
+        <span class="text-slate-600 text-[11px]">कुल: <span id="historyRecordCount">0</span> प्रविष्टियां</span>
+        <span class="bg-rose-100 text-rose-900 px-2 py-0.5 rounded">
+          शुद्ध बाकी: ₹<span id="historyFilteredDue">0.00</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRASH MODAL -->
+  <div id="trashModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3">
+    <div class="fluid-panel max-w-sm w-full p-4 shadow-2xl flex flex-col max-h-[80vh]">
+      <div class="flex justify-between items-center border-b pb-1.5 mb-2">
+        <h3 class="text-sm font-black text-slate-900">रीसायकल बिन (हटाए गए सामान)</h3>
+        <button onclick="closeTrashModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-black text-xs">&times;</button>
+      </div>
+      <div class="overflow-y-auto flex-grow border rounded-xl shadow-inner">
+        <table class="w-full text-left text-xs">
+          <tbody id="trashTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+      <div class="flex justify-between items-center mt-2 pt-2 border-t">
+        <button onclick="emptyTrashPermanently()" class="text-xs font-black text-rose-600 hover:underline">बिन खाली करें</button>
+        <button onclick="closeTrashModal()" class="btn-slate text-white px-3 py-1 rounded-lg text-xs font-black">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    const translations = {
+      hi: {
+        store_name: "विहंगम किराना",
+        tab_login: "लॉगिन",
+        tab_signup: "नया खाता",
+        tab_change_pin: "पिन बदलें",
+        lbl_enter_pin: "6 अंकों का पासवर्ड (PIN) दर्ज करें:",
+        btn_login: "लॉगिन करें",
+        lbl_store_owner: "दुकान / दुकानदार का नाम:",
+        lbl_pin: "6-अंकों का PIN:",
+        lbl_confirm_pin: "पुनः दर्ज करें:",
+        btn_signup: "खाता बनाएं",
+        step_customer: "1. ग्राहक चयन व खाता",
+        step_date: "2. बिल तारीख",
+        btn_today: "आज",
+        btn_change_add_pin: "ऐड पिन",
+        step_tools: "3. टूल्स व रिपोर्ट",
+        btn_ledger: "खाता बही",
+        btn_pin: "पिन",
+        btn_print: "प्रिंट",
+        th_cust: "ग्राहक:",
+        th_sno: "क्र.",
+        th_item_name: "सामान का नाम (Item)",
+        th_price: "मूल्य (₹)",
+        th_action: "हटाएं",
+        tot_current_date: "📅 इस तारीख:",
+        tot_cust_all: "ग्राहक कुल खाता",
+        tot_grand: "दुकान महा-योग:",
+        btn_logout: "लॉगआउट",
+        search_placeholder: "🔍 नाम या पेज से खोजें...",
+        logout_title: "लॉगआउट की पुष्टि",
+        logout_desc: "क्या आप वाकई बहीखाता लॉक करके बाहर जाना चाहते हैं?",
+        logout_yes: "हाँ, लॉगआउट",
+        logout_no: "नहीं",
+        lbl_gross_total: "कुल:",
+        lbl_paid_amount: "जमा (-):",
+        lbl_balance_due: "बाकी:"
+      },
+      en: {
+        store_name: "Vihangam Kirana",
+        tab_login: "Login",
+        tab_signup: "New Account",
+        tab_change_pin: "Change PIN",
+        lbl_enter_pin: "Enter 6-digit PIN:",
+        btn_login: "Login",
+        lbl_store_owner: "Store / Owner Name:",
+        lbl_pin: "6-Digit PIN:",
+        lbl_confirm_pin: "Re-enter PIN:",
+        btn_signup: "Create Account",
+        step_customer: "1. Customer Select & Hub",
+        step_date: "2. Bill Date",
+        btn_today: "Today",
+        btn_change_add_pin: "Add PIN",
+        step_tools: "3. Tools & Reports",
+        btn_ledger: "Ledger",
+        btn_pin: "PIN",
+        btn_print: "Print",
+        th_cust: "Customer:",
+        th_sno: "S.N.",
+        th_item_name: "Item Name",
+        th_price: "Price (₹)",
+        th_action: "Del",
+        tot_current_date: "📅 This Date:",
+        tot_cust_all: "Customer Total Ledger",
+        tot_grand: "Store Total:",
+        btn_logout: "Logout",
+        search_placeholder: "🔍 Search name or page...",
+        logout_title: "Confirm Logout",
+        logout_desc: "Are you sure you want to lock and log out?",
+        logout_yes: "Yes, Logout",
+        logout_no: "No",
+        lbl_gross_total: "Total:",
+        lbl_paid_amount: "Paid (-):",
+        lbl_balance_due: "Due:"
+      }
+    };
+
+    /* 📦 ITEM MASTER DATA */
+    const defaultKiranaItems = [
+      "चीनी (Sugar)", "आटा (Wheat Flour)", "चावल (Rice)", "सरसों तेल (Mustard Oil)",
+      "रिफाइंड तेल (Refined Oil)", "अरहर दाल (Toor Dal)", "चना दाल (Chana Dal)",
+      "मूंग दाल (Moong Dal)", "चायपत्ती (Tea)", "नमक (Salt)", "हल्दी पाउडर (Turmeric)",
+      "धनिया पाउडर (Coriander)", "मिर्च पाउडर (Chilli)", "गरम मसाला (Garam Masala)",
+      "देसी घी (Desi Ghee)", "नहाने का साबुन (Soap)", "सर्फ (Detergent)",
+      "टूथपेस्ट (Toothpaste)", "बिस्कुट (Biscuits)", "नमकीन (Namkeen)", "मैगी (Noodles)",
+      "पोहा (Poha)", "सूजी / रवा (Suji)", "बेसन (Besan)", "जीरा (Cumin)", "राई / सरसों (Mustard)"
+    ];
+
+    function getCustomItemsList() {
+      const stored = localStorage.getItem('vihangam_custom_items_list_v2');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+      }
+      return [...defaultKiranaItems];
+    }
+
+    function saveCustomItemsList(items) {
+      localStorage.setItem('vihangam_custom_items_list_v2', JSON.stringify(items));
+      renderItemSuggestions();
+    }
+
+    function renderItemSuggestions() {
+      const datalist = document.getElementById('kiranaCommonItems');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      const items = getCustomItemsList();
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        datalist.appendChild(opt);
+      });
+    }
+
+    function openItemMasterModal() {
+      document.getElementById('newMasterItemInput').value = '';
+      document.getElementById('searchMasterItemInput').value = '';
+      renderItemMasterList();
+      document.getElementById('itemMasterModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('newMasterItemInput').focus(), 100);
+    }
+
+    function closeItemMasterModal() {
+      document.getElementById('itemMasterModal').classList.add('hidden');
+    }
+
+    function renderItemMasterList(filter = '') {
+      const tbody = document.getElementById('itemMasterTableBody');
+      tbody.innerHTML = '';
+      const items = getCustomItemsList();
+      const q = (filter || '').toLowerCase().trim();
+      const filtered = items.filter(it => it.toLowerCase().includes(q));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-slate-400 font-bold">कोई सामान नहीं मिला।</td></tr>`;
+        return;
+      }
+
+      filtered.forEach((itemName) => {
+        const originalIndex = items.indexOf(itemName);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
+        tr.id = `master-row-${originalIndex}`;
+        tr.innerHTML = `
+          <td class="p-2 text-center text-slate-400 font-bold">${originalIndex + 1}</td>
+          <td class="p-2 font-bold text-slate-800">${itemName}</td>
+          <td class="p-2 text-center flex items-center justify-center gap-2">
+            <button onclick="editItemInMaster(${originalIndex})" class="text-indigo-600 p-1" title="नाम बदलें">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+            <button onclick="deleteItemFromMaster(${originalIndex})" class="text-rose-500 p-1" title="हटाएं">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addNewItemToMaster() {
+      const input = document.getElementById('newMasterItemInput');
+      const val = (input.value || '').trim();
+      if (!val) return alert("कृपया सामान का नाम लिखें!");
+      const items = getCustomItemsList();
+      if (items.includes(val)) return alert("यह सामान पहले से लिस्ट में है!");
+      items.unshift(val);
+      saveCustomItemsList(items);
+      input.value = '';
+      renderItemMasterList();
+      input.focus();
+    }
+
+    function editItemInMaster(index) {
+      const items = getCustomItemsList();
+      const currentName = items[index];
+      const row = document.getElementById(`master-row-${index}`);
+      if (!row) return;
+
+      row.innerHTML = `
+        <td class="p-1.5 text-center text-slate-400 font-bold">${index + 1}</td>
+        <td class="p-1.5">
+          <input type="text" id="editItemInput-${index}" value="${currentName}" class="w-full input-fluid p-1 rounded font-bold text-slate-900 text-xs">
+        </td>
+        <td class="p-1.5 text-center flex items-center justify-center gap-1">
+          <button onclick="saveEditedItemInMaster(${index})" class="btn-emerald text-white px-2 py-0.5 rounded text-xs font-bold">✓</button>
+          <button onclick="renderItemMasterList()" class="btn-slate text-white px-2 py-0.5 rounded text-xs font-bold">✗</button>
+        </td>
+      `;
+      const editInp = document.getElementById(`editItemInput-${index}`);
+      if (editInp) {
+        editInp.focus();
+        editInp.onkeydown = (e) => {
+          if (e.key === 'Enter') saveEditedItemInMaster(index);
+          if (e.key === 'Escape') renderItemMasterList();
+        };
+      }
+    }
+
+    function saveEditedItemInMaster(index) {
+      const input = document.getElementById(`editItemInput-${index}`);
+      if (!input) return;
+      const newVal = input.value.trim();
+      if (!newVal) return alert("नाम खाली नहीं हो सकता!");
+      const items = getCustomItemsList();
+      items[index] = newVal;
+      saveCustomItemsList(items);
+      renderItemMasterList();
+    }
+
+    function deleteItemFromMaster(index) {
+      const items = getCustomItemsList();
+      if (confirm(`क्या आप "${items[index]}" को लिस्ट से हटाना चाहते हैं?`)) {
+        items.splice(index, 1);
+        saveCustomItemsList(items);
+        renderItemMasterList();
+      }
+    }
+
+    function resetItemMasterToDefault() {
+      if (confirm("क्या आप वाकई सभी सामानों को मूल डिफ़ॉल्ट लिस्ट में रीसेट करना चाहते हैं?")) {
+        saveCustomItemsList([...defaultKiranaItems]);
+        renderItemMasterList();
+      }
+    }
+
+    /* 📁 FILE SYSTEM AUTO SYNC */
+    const IDB_NAME = 'VihangamKiranaDriveDB';
+    const IDB_STORE = 'handles';
+
+    function openDriveDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function storeDirectoryHandleInIDB(handle) {
+      try {
+        const db = await openDriveDB();
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(handle, 'selectedDirHandle');
+      } catch(e) {}
+    }
+
+    async function getStoredDirectoryHandleFromIDB() {
+      try {
+        const db = await openDriveDB();
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        return new Promise((resolve) => {
+          const req = tx.objectStore(IDB_STORE).get('selectedDirHandle');
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        });
+      } catch(e) { return null; }
+    }
+
+    let customDirHandle = null;
+    let driveConfig = JSON.parse(localStorage.getItem('vihangam_drive_config_v1')) || { folderName: null };
+    let driveWriteDebounceTimer = null;
+
+    function openFolderPromptModal() {
+      document.getElementById('folderPromptModal').classList.remove('hidden');
+    }
+    function closeFolderPromptModal() {
+      document.getElementById('folderPromptModal').classList.add('hidden');
+    }
+
+    async function pickCustomDriveFolder(fromPrompt = false) {
+      if (!window.showDirectoryPicker) {
+        alert("यह ब्राउज़र डायरेक्ट फ़ोल्डर चयन का समर्थन नहीं करता है। आप 'JSON डाउनलोड' बटन से बैकअप सुरक्षित कर सकते हैं।");
+        if (fromPrompt) closeFolderPromptModal();
+        return;
+      }
+      try {
+        customDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'documents' });
+        driveConfig.folderName = customDirHandle.name;
+        localStorage.setItem('vihangam_drive_config_v1', JSON.stringify(driveConfig));
+        await storeDirectoryHandleInIDB(customDirHandle);
+        updateDriveUI();
+        await writeBackupFileToHandle(customDirHandle, true);
+        if (fromPrompt) closeFolderPromptModal();
+      } catch (err) {
+        console.log("Folder cancelled:", err);
+      }
+    }
+
+    async function triggerManualSyncWithPermission() {
+      if (!customDirHandle) customDirHandle = await getStoredDirectoryHandleFromIDB();
+      if (!customDirHandle) {
+        alert("कृपया पहले '📁 चुनें' बटन से बैकअप फ़ोल्डर चुन लें।");
+        await pickCustomDriveFolder(false);
+        return;
+      }
+      try {
+        let perm = await customDirHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') perm = await customDirHandle.requestPermission({ mode: 'readwrite' });
+        if (perm === 'granted') await writeBackupFileToHandle(customDirHandle, true);
+      } catch (e) {
+        alert("सिंक करने में समस्या आई।");
+      }
+    }
+
+    async function writeBackupFileToHandle(handle, notify = false) {
+      if (!handle) return;
+      try {
+        const fullBackup = {
+          appName: "VihangamKiranaStore",
+          version: "3.5",
+          backupDate: new Date().toISOString(),
+          timestampReadable: `${getTodayString()} ${getNowTimeString()}`,
+          storeData: data,
+          customItems: getCustomItemsList(),
+          authUsers: authDb.users,
+          customerDeletePin: authDb.customerDeletePin,
+          customerAddPin: authDb.customerAddPin
+        };
+
+        const fileName = `Vihangam_Kirana_AutoBackup.json`;
+        const fileHandle = await handle.getFileHandle(fileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(fullBackup, null, 2));
+        await writable.close();
+
+        const statusText = document.getElementById('driveAutoStatusText');
+        if (statusText && driveConfig.folderName) {
+          statusText.innerHTML = `<span class="text-emerald-700 font-black">✓ सिंक सक्रिय (${getNowTimeString()})</span>`;
+        }
+
+        if (notify) alert(`✓ बहीखाता सफलतापूर्वक "${driveConfig.folderName}" में सुरक्षित हो गया!`);
+      } catch (err) {}
+    }
+
+    async function saveDirectlyToChosenDrive() {
+      if (!customDirHandle) customDirHandle = await getStoredDirectoryHandleFromIDB();
+      if (!customDirHandle) return;
+      try {
+        const perm = await customDirHandle.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') await writeBackupFileToHandle(customDirHandle, false);
+      } catch (err) {}
+    }
+
+    function updateDriveUI() {
+      const display = document.getElementById('customDrivePathDisplay');
+      const statusText = document.getElementById('driveAutoStatusText');
+
+      if (driveConfig.folderName) {
+        if (display) display.innerHTML = `<span class="text-emerald-700 font-extrabold">📁 ${driveConfig.folderName}</span>`;
+        if (statusText) statusText.innerHTML = `<span class="text-emerald-700 font-bold">✓ ऑटो-सिंक सक्रिय</span>`;
+      } else {
+        if (display) display.innerHTML = `<span class="text-slate-500 font-semibold">(सेट नहीं)</span>`;
+        if (statusText) statusText.innerHTML = `लोकेशन सेट नहीं है।`;
+      }
+    }
+
+    function checkFolderSetupPrompt() {
+      if (window.showDirectoryPicker && !driveConfig.folderName && window.innerWidth >= 1024) {
+        setTimeout(() => openFolderPromptModal(), 600);
+      }
+    }
+
+    /* 📱 MOBILE VIEW TAB SWITCHING */
+    function mobileSwitchTab(tab) {
+      const sidebar = document.getElementById('leftSidebar');
+      const workstation = document.getElementById('workstationCanvas');
+      const btnBill = document.getElementById('mobNavBill');
+      const btnCust = document.getElementById('mobNavCust');
+
+      if (tab === 'customer') {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('flex');
+        workstation.classList.add('hidden');
+        btnCust.className = "flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 font-black transition";
+        btnBill.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400 font-bold transition";
+      } else {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('flex');
+        workstation.classList.remove('hidden');
+        btnBill.className = "flex flex-col items-center justify-center flex-1 py-1 text-emerald-400 font-black transition";
+        btnCust.className = "flex flex-col items-center justify-center flex-1 py-1 text-slate-400 font-bold transition";
+      }
+    }
+
+    function openMoreMenuModal() {
+      document.getElementById('moreMenuModal').classList.remove('hidden');
+    }
+    function closeMoreMenuModal() {
+      document.getElementById('moreMenuModal').classList.add('hidden');
+    }
+
+    /* GENERAL LOGIC */
+    function getTodayString() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function getNowTimeString() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function formatDisplayDate(dateStr, showDay = true) {
+      if (!dateStr) return "-";
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      const dmy = `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+      if (!showDay) return dmy;
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      const daysHi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+      const daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const arr = (data.lang === 'en') ? daysEn : daysHi;
+      return `${dmy} (${arr[d.getDay()]})`;
+    }
+
+    function getDayNameOnly(dateStr) {
+      if (!dateStr) return "";
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return "";
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      const daysHi = ['(रविवार)', '(सोमवार)', '(मंगलवार)', '(बुधवार)', '(गुरुवार)', '(शुक्रवार)', '(शनिवार)'];
+      const daysEn = ['(Sunday)', '(Monday)', '(Tuesday)', '(Wednesday)', '(Thursday)', '(Friday)', '(Saturday)'];
+      const arr = (data.lang === 'en') ? daysEn : daysHi;
+      return arr[d.getDay()];
+    }
+
+    let authDb = JSON.parse(localStorage.getItem('vihangam_auth_users_db_v7')) || {
+      users: [{ name: "विहंगम किराना स्टोर", password: "266311" }],
+      currentSessionUser: null,
+      customerDeletePin: null,
+      customerAddPin: null
+    };
+
+    let data = JSON.parse(localStorage.getItem('vihangam_kirana_dmy_clean_v3')) || {
+      lang: 'hi',
+      activeViewMode: 'single',
+      customers: [
+        {
+          id: 1,
+          name: "राजेश चौहान",
+          bills: {
+            [getTodayString()]: {
+              items: [
+                { id: 101, name: "चीनी (Sugar)", price: 84 },
+                { id: 102, name: "सरसों तेल (Mustard Oil)", price: 140 }
+              ],
+              paid: 100,
+              paidBy: "स्वयं",
+              paidMode: "नकद (Cash)",
+              paidNote: "हाथ से जमा",
+              trash: []
+            }
+          }
+        }
+      ],
+      selectedCustomerId: 1,
+      selectedDate: getTodayString()
+    };
+
+    function applyLanguage(targetLang) {
+      data.lang = targetLang || data.lang || 'hi';
+      const label = (data.lang === 'hi') ? 'English' : 'हिंदी';
+      
+      const el1 = document.getElementById('langSwitchLabel');
+      const el2 = document.getElementById('authLangSwitchLabel');
+      if (el1) el1.innerText = (data.lang === 'hi') ? 'EN' : 'हिं';
+      if (el2) el2.innerText = label;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[data.lang] && translations[data.lang][key]) {
+          el.innerText = translations[data.lang][key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (translations[data.lang] && translations[data.lang][key]) {
+          el.placeholder = translations[data.lang][key];
+        }
+      });
+
+      updateCustomerDelBtnLabel();
+      updateCustomerAddBtnLabel();
+      loadCustomerBill();
+      saveToStorage();
+    }
+
+    function toggleLanguage() {
+      const nextLang = (data.lang === 'hi') ? 'en' : 'hi';
+      applyLanguage(nextLang);
+    }
+
+    function showAuthOverlay() {
+      const overlay = document.getElementById('authOverlay');
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+      }
+    }
+
+    function hideAuthOverlay() {
+      const overlay = document.getElementById('authOverlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+      }
+    }
+
+    function handleLogout() {
+      document.getElementById('logoutConfirmModal').classList.remove('hidden');
+    }
+    function closeLogoutModal() {
+      document.getElementById('logoutConfirmModal').classList.add('hidden');
+    }
+    function confirmLogoutYes() {
+      authDb.currentSessionUser = null;
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      sessionStorage.clear();
+      window.location.reload();
+    }
+
+    function getValidPurchaseDates(cust) {
+      if (!cust || !cust.bills) return [];
+      return Object.keys(cust.bills).filter(d => {
+        const b = cust.bills[d];
+        if (!b) return false;
+        const hasItems = b.items && b.items.some(it => (it.name && it.name.trim() !== '') || (parseFloat(it.price) !== 0));
+        const hasPaid = parseFloat(b.paid) > 0;
+        return hasItems || hasPaid;
+      }).sort().reverse();
+    }
+
+    function cleanupEmptyBills() {
+      data.customers.forEach(cust => {
+        if (!cust.bills) return;
+        Object.keys(cust.bills).forEach(d => {
+          const isCurrentActive = (cust.id === data.selectedCustomerId && d === data.selectedDate);
+          const b = cust.bills[d];
+          const hasRealItems = b && b.items && b.items.some(it => (it.name && it.name.trim() !== '') || (parseFloat(it.price) !== 0));
+          const hasPaid = b && parseFloat(b.paid) > 0;
+          if (!hasRealItems && !hasPaid && !isCurrentActive) {
+            delete cust.bills[d];
+          }
+        });
+      });
+    }
+
+    let pendingSecureAction = null;
+
+    function requestPinAuthorization(actionTitle, actionDesc, callbackFn, actionType = 'login', btnText = "पुष्टि करें") {
+      pendingSecureAction = { callback: callbackFn, actionType: actionType };
+      document.getElementById('pinVerifyActionTitle').innerText = actionTitle;
+      document.getElementById('pinVerifyActionDesc').innerHTML = actionDesc;
+      document.getElementById('pinVerifyBtnConfirmText').innerText = btnText;
+      document.getElementById('actionVerifyPinInput').value = '';
+      document.getElementById('pinVerifyError').classList.add('hidden');
+      document.getElementById('pinVerifyModal').classList.remove('hidden');
+      setTimeout(() => {
+        const inp = document.getElementById('actionVerifyPinInput');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function closePinVerifyModal() {
+      document.getElementById('pinVerifyModal').classList.add('hidden');
+      pendingSecureAction = null;
+    }
+
+    function handlePinVerificationSubmit(e) {
+      e.preventDefault();
+      const enteredPin = document.getElementById('actionVerifyPinInput').value.trim();
+      if (!pendingSecureAction) return;
+
+      const actType = pendingSecureAction.actionType;
+
+      if (actType === 'customerAdd') {
+        if (!authDb.customerAddPin) {
+          alert("नया ग्राहक PIN सेट नहीं है! पहले सेट करें।");
+          closePinVerifyModal();
+          openChangePasswordModal('customerAdd');
+          return;
+        }
+        if (enteredPin === authDb.customerAddPin) {
+          document.getElementById('pinVerifyModal').classList.add('hidden');
+          const runFn = pendingSecureAction.callback;
+          pendingSecureAction = null;
+          runFn();
+        } else {
+          const err = document.getElementById('pinVerifyError');
+          err.innerText = "❌ गलत PIN! अनुमति अस्वीकृत।";
+          err.classList.remove('hidden');
+        }
+      } else if (actType === 'customerDelete') {
+        if (!authDb.customerDeletePin) {
+          alert("ग्राहक डिलीट पिन सेट नहीं है! पहले सेट करें।");
+          closePinVerifyModal();
+          openChangePasswordModal('customerDelete');
+          return;
+        }
+        if (enteredPin === authDb.customerDeletePin) {
+          document.getElementById('pinVerifyModal').classList.add('hidden');
+          const runFn = pendingSecureAction.callback;
+          pendingSecureAction = null;
+          runFn();
+        } else {
+          const err = document.getElementById('pinVerifyError');
+          err.innerText = "❌ गलत डिलीट PIN!";
+          err.classList.remove('hidden');
+        }
+      } else {
+        const currentUserPin = authDb.currentSessionUser ? authDb.currentSessionUser.password : (authDb.users[0] ? authDb.users[0].password : "266311");
+        if (enteredPin === currentUserPin) {
+          document.getElementById('pinVerifyModal').classList.add('hidden');
+          const runFn = pendingSecureAction.callback;
+          pendingSecureAction = null;
+          runFn();
+        } else {
+          const err = document.getElementById('pinVerifyError');
+          err.innerText = "❌ गलत PIN!";
+          err.classList.remove('hidden');
+        }
+      }
+    }
+
+    function triggerAddCustomerSecurely() {
+      const nameInput = document.getElementById('newCustomerName');
+      const name = (nameInput.value || '').trim();
+
+      if (!name) return alert("कृपया नए ग्राहक का नाम दर्ज करें!");
+
+      if (!authDb.customerAddPin) {
+        alert("सुरक्षा सूचना: पहले 6-अंकों का गुप्त 'ऐड ग्राहक PIN' बनाएं।");
+        openChangePasswordModal('customerAdd');
+        return;
+      }
+
+      requestPinAuthorization(
+        "नया ग्राहक जोड़ने की पुष्टि",
+        `ग्राहक <b>"${name}"</b> को जोड़ने हेतु PIN दर्ज करें:`,
+        () => {
+          const today = getTodayString();
+          const newCust = {
+            id: Date.now(),
+            name: name,
+            bills: { [today]: { items: [{ id: Date.now(), name: "", price: 0 }], paid: 0, paidBy: "स्वयं", trash: [] } }
+          };
+          data.customers.push(newCust);
+          data.selectedCustomerId = newCust.id;
+          data.selectedDate = today;
+          nameInput.value = '';
+          loadCustomerBill();
+          alert(`ग्राहक "${name}" का खाता जुड़ गया है!`);
+          mobileSwitchTab('bill');
+        },
+        'customerAdd',
+        "ग्राहक जोड़ें"
+      );
+    }
+
+    function openBulkCustomerModal() {
+      document.getElementById('bulkCustomerTextarea').value = '';
+      document.getElementById('bulkCustomerModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('bulkCustomerTextarea').focus(), 80);
+    }
+    function closeBulkCustomerModal() {
+      document.getElementById('bulkCustomerModal').classList.add('hidden');
+    }
+
+    function handleBulkCustomersSubmit() {
+      const text = document.getElementById('bulkCustomerTextarea').value;
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      if (lines.length === 0) return alert("कम से कम एक ग्राहक का नाम दर्ज करें!");
+
+      if (!authDb.customerAddPin) {
+        alert("पहले 'ऐड ग्राहक PIN' बनाएं।");
+        closeBulkCustomerModal();
+        openChangePasswordModal('customerAdd');
+        return;
+      }
+
+      requestPinAuthorization(
+        "मल्टीपल ग्राहक जोड़ने की पुष्टि",
+        `कुल ${lines.length} नए ग्राहकों को जोड़ने हेतु PIN दर्ज करें:`,
+        () => {
+          const today = getTodayString();
+          let firstNewId = null;
+
+          lines.forEach((cName, idx) => {
+            const newCustId = Date.now() + idx;
+            if (idx === 0) firstNewId = newCustId;
+
+            data.customers.push({
+              id: newCustId,
+              name: cName,
+              bills: { [today]: { items: [{ id: Date.now() + idx + 10, name: "", price: 0 }], paid: 0, paidBy: "स्वयं", trash: [] } }
+            });
+          });
+
+          if (firstNewId) {
+            data.selectedCustomerId = firstNewId;
+            data.selectedDate = today;
+          }
+
+          closeBulkCustomerModal();
+          loadCustomerBill();
+          alert(`कुल ${lines.length} नए ग्राहक जोड़े गए!`);
+          mobileSwitchTab('bill');
+        },
+        'customerAdd',
+        "जोड़ें"
+      );
+    }
+
+    function openChangePasswordModal(defaultTab = 'login') {
+      switchChangePinTab(defaultTab);
+      document.getElementById('changePasswordModal').classList.remove('hidden');
+    }
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.add('hidden');
+      updateCustomerDelBtnLabel();
+      updateCustomerAddBtnLabel();
+    }
+
+    function updateCustomerDelBtnLabel() {
+      const lbl = document.getElementById('custDelPinBtnLabel');
+      if (lbl) {
+        lbl.innerText = data.lang === 'en' 
+          ? (authDb.customerDeletePin ? "Change Del PIN" : "Set Del PIN")
+          : (authDb.customerDeletePin ? "डिलीट पिन" : "सेट डिलीट पिन");
+      }
+    }
+    function updateCustomerAddBtnLabel() {
+      const lbl = document.getElementById('custAddPinBtnLabel');
+      if (lbl) {
+        lbl.innerText = data.lang === 'en' 
+          ? (authDb.customerAddPin ? "Change Add PIN" : "Set Add PIN")
+          : (authDb.customerAddPin ? "ऐड पिन" : "सेट ऐड पिन");
+      }
+    }
+
+    function switchChangePinTab(tab) {
+      const tabLoginBtn = document.getElementById('tabChangeLoginPinBtn');
+      const tabCustDelBtn = document.getElementById('tabChangeCustDeletePinBtn');
+      const tabCustAddBtn = document.getElementById('tabChangeCustAddPinBtn');
+
+      const formLogin = document.getElementById('formChangeLoginPin');
+      const formCustDel = document.getElementById('formChangeCustDeletePin');
+      const formCustAdd = document.getElementById('formChangeCustAddPin');
+
+      document.getElementById('changeLoginPinMsg').classList.add('hidden');
+      document.getElementById('changeCustDelPinMsg').classList.add('hidden');
+      document.getElementById('changeCustAddPinMsg').classList.add('hidden');
+
+      tabLoginBtn.className = "flex-1 py-1 rounded-lg text-slate-500 cursor-pointer";
+      tabCustDelBtn.className = "flex-1 py-1 rounded-lg text-slate-500 cursor-pointer";
+      tabCustAddBtn.className = "flex-1 py-1 rounded-lg text-slate-500 cursor-pointer";
+
+      formLogin.classList.add('hidden');
+      formCustDel.classList.add('hidden');
+      formCustAdd.classList.add('hidden');
+
+      if (tab === 'login') {
+        tabLoginBtn.className = "flex-1 py-1 rounded-lg bg-white text-emerald-900 shadow-xs font-black";
+        formLogin.classList.remove('hidden');
+        document.getElementById('oldLoginPinInput').value = '';
+        document.getElementById('newLoginPinInput').value = '';
+        document.getElementById('confirmNewLoginPinInput').value = '';
+      } else if (tab === 'customerAdd') {
+        tabCustAddBtn.className = "flex-1 py-1 rounded-lg bg-white text-emerald-900 shadow-xs font-black";
+        formCustAdd.classList.remove('hidden');
+        const notice = document.getElementById('custAddPinStatusNotice');
+        const oldGroup = document.getElementById('oldCustAddPinGroup');
+        const btnSubmit = document.getElementById('btnSubmitCustAddText');
+
+        if (!authDb.customerAddPin) {
+          notice.innerHTML = `⚠️ नया 6-अंकों का गुप्त PIN बनाएं:`;
+          oldGroup.classList.add('hidden');
+          btnSubmit.innerText = "ऐड पिन सेट करें";
+        } else {
+          notice.innerHTML = `नया ग्राहक जोड़ने का गुप्त पिन बदलें:`;
+          oldGroup.classList.remove('hidden');
+          btnSubmit.innerText = "ऐड पिन अपडेट करें";
+        }
+      } else {
+        tabCustDelBtn.className = "flex-1 py-1 rounded-lg bg-white text-rose-900 shadow-xs font-black";
+        formCustDel.classList.remove('hidden');
+        const notice = document.getElementById('custDelPinStatusNotice');
+        const oldGroup = document.getElementById('oldCustDelPinGroup');
+        const btnSubmit = document.getElementById('btnSubmitCustDelText');
+
+        if (!authDb.customerDeletePin) {
+          notice.innerHTML = `⚠️ ग्राहक डिलीट का नया PIN बनाएं:`;
+          oldGroup.classList.add('hidden');
+          btnSubmit.innerText = "पिन सेट करें";
+        } else {
+          notice.innerHTML = `ग्राहक डिलीट पिन बदलें:`;
+          oldGroup.classList.remove('hidden');
+          btnSubmit.innerText = "डिलीट पिन अपडेट";
+        }
+      }
+    }
+
+    function handleChangeLoginPinSubmit(e) {
+      e.preventDefault();
+      const oldPin = document.getElementById('oldLoginPinInput').value.trim();
+      const newPin = document.getElementById('newLoginPinInput').value.trim();
+      const confirmNewPin = document.getElementById('confirmNewLoginPinInput').value.trim();
+      const msg = document.getElementById('changeLoginPinMsg');
+      const currentUser = authDb.currentSessionUser || authDb.users[0];
+      const actualOldPin = currentUser ? currentUser.password : "266311";
+
+      if (oldPin !== actualOldPin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ वर्तमान पिन गलत है!";
+        msg.classList.remove('hidden');
+        return;
+      }
+      if (newPin.length !== 6 || isNaN(newPin) || newPin !== confirmNewPin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ PIN 6 अंकों का होना चाहिए और मेल खाना चाहिए!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      if (authDb.currentSessionUser) authDb.currentSessionUser.password = newPin;
+      authDb.users.forEach(u => u.password = newPin);
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      closeChangePasswordModal();
+      alert("लॉगिन PIN बदल गया है!");
+    }
+
+    function handleChangeCustAddPinSubmit(e) {
+      e.preventDefault();
+      const oldPin = document.getElementById('oldCustAddPinInput').value.trim();
+      const newPin = document.getElementById('newCustAddPinInput').value.trim();
+      const confirmNewPin = document.getElementById('confirmNewCustAddPinInput').value.trim();
+      const msg = document.getElementById('changeCustAddPinMsg');
+
+      if (authDb.customerAddPin && oldPin !== authDb.customerAddPin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ वर्तमान पिन गलत है!";
+        msg.classList.remove('hidden');
+        return;
+      }
+      if (newPin.length !== 6 || isNaN(newPin) || newPin !== confirmNewPin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ PIN 6 अंकों का होना चाहिए!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      authDb.customerAddPin = newPin;
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      closeChangePasswordModal();
+      alert("ऐड ग्राहक PIN सुरक्षित हो गया!");
+    }
+
+    function resetCustAddPinWithMasterLogin() {
+      const enteredMaster = prompt("दुकान का मुख्य लॉगिन PIN दर्ज करें:");
+      if (!enteredMaster) return;
+      const currentLoginPin = authDb.currentSessionUser ? authDb.currentSessionUser.password : (authDb.users[0] ? authDb.users[0].password : "266311");
+      if (enteredMaster === currentLoginPin) {
+        authDb.customerAddPin = null;
+        localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+        alert("सत्यापन सफल! अब नया पिन बनाएं।");
+        switchChangePinTab('customerAdd');
+      } else {
+        alert("❌ गलत लॉगिन पिन!");
+      }
+    }
+
+    function handleChangeCustDeletePinSubmit(e) {
+      e.preventDefault();
+      const oldPin = document.getElementById('oldCustDelPinInput').value.trim();
+      const newPin = document.getElementById('newCustDelPinInput').value.trim();
+      const confirmNewPin = document.getElementById('confirmNewCustDelPinInput').value.trim();
+      const msg = document.getElementById('changeCustDelPinMsg');
+
+      if (authDb.customerDeletePin && oldPin !== authDb.customerDeletePin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ वर्तमान डिलीट PIN गलत है!";
+        msg.classList.remove('hidden');
+        return;
+      }
+      if (newPin.length !== 6 || isNaN(newPin) || newPin !== confirmNewPin) {
+        msg.className = "text-xs font-black p-1 rounded bg-rose-50 text-rose-700";
+        msg.innerText = "❌ PIN 6 अंकों का होना चाहिए!";
+        msg.classList.remove('hidden');
+        return;
+      }
+
+      authDb.customerDeletePin = newPin;
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      closeChangePasswordModal();
+      alert("डिलीट PIN सुरक्षित हो गया!");
+    }
+
+    function resetCustDelPinWithMasterLogin() {
+      const enteredMaster = prompt("मुख्य लॉगिन PIN दर्ज करें:");
+      if (!enteredMaster) return;
+      const currentLoginPin = authDb.currentSessionUser ? authDb.currentSessionUser.password : (authDb.users[0] ? authDb.users[0].password : "266311");
+      if (enteredMaster === currentLoginPin) {
+        authDb.customerDeletePin = null;
+        localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+        alert("सत्यापन सफल! अब नया डिलीट पिन बनाएं।");
+        switchChangePinTab('customerDelete');
+      } else {
+        alert("❌ गलत लॉगिन पिन!");
+      }
+    }
+
+    function handleAuthChangePinSubmit(e) {
+      e.preventDefault();
+      const oldPin = document.getElementById('authOldPin').value.trim();
+      const newPin = document.getElementById('authNewPin').value.trim();
+      const confirmNewPin = document.getElementById('authConfirmNewPin').value.trim();
+
+      const user = authDb.users.find(u => u.password === oldPin);
+      if (!user) return alert("❌ पुराना PIN गलत है!");
+      if (newPin.length !== 6 || isNaN(newPin) || newPin !== confirmNewPin) {
+        return alert("❌ PIN 6 अंकों का होना चाहिए और मेल खाना चाहिए!");
+      }
+
+      user.password = newPin;
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      alert("✓ PIN बदल गया! अब लॉगिन करें।");
+      switchAuthTab('login');
+    }
+
+    function triggerDeleteCustomerSecurely() {
+      const cust = getActiveCustomer();
+      if (data.customers.length <= 1) return alert("कम से कम 1 ग्राहक आवश्यक है!");
+
+      if (!authDb.customerDeletePin) {
+        alert("ग्राहक हटाने के लिए पहले डिलीट पिन सेट करें।");
+        openChangePasswordModal('customerDelete');
+        return;
+      }
+
+      requestPinAuthorization(
+        "ग्राहक हटाने की पुष्टि",
+        `ग्राहक "${cust.name}" को हटाने हेतु PIN दर्ज करें:`,
+        () => {
+          data.customers = data.customers.filter(c => c.id !== data.selectedCustomerId);
+          data.selectedCustomerId = data.customers[0].id;
+          const nextCust = getActiveCustomer();
+          const nextDates = getValidPurchaseDates(nextCust);
+          data.selectedDate = nextDates.length > 0 ? nextDates[0] : getTodayString();
+          loadCustomerBill();
+          alert(`ग्राहक हटा दिया गया है!`);
+        },
+        'customerDelete',
+        "हटाएं"
+      );
+    }
+
+    function openBillDeleteModal() {
+      const cust = getActiveCustomer();
+      document.getElementById('delModalCustomerNameBadge').innerText = cust.name;
+      renderBillDeleteTable();
+      document.getElementById('billDeleteModal').classList.remove('hidden');
+    }
+    function closeBillDeleteModal() {
+      document.getElementById('billDeleteModal').classList.add('hidden');
+    }
+
+    function renderBillDeleteTable() {
+      const cust = getActiveCustomer();
+      const tbody = document.getElementById('delModalBillsTableBody');
+      tbody.innerHTML = '';
+
+      const billDates = getValidPurchaseDates(cust);
+      if (billDates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-400 font-bold">कोई बिल नहीं मिला।</td></tr>`;
+        return;
+      }
+
+      billDates.forEach(d => {
+        const bill = cust.bills[d];
+        const items = bill.items || [];
+        const totalAmount = items.reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="p-2 font-bold font-mono">${formatDisplayDate(d, false)}</td>
+          <td class="p-2 text-center font-black">${items.length}</td>
+          <td class="p-2 text-right font-black font-mono text-emerald-800">₹${totalAmount.toFixed(2)}</td>
+          <td class="p-2 text-center">
+            <button onclick="requestDeleteBillSecurely('${d}')" class="btn-rose text-white px-2 py-0.5 rounded text-xs font-black">
+              हटाएं
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function requestDeleteBillSecurely(dateToDelete) {
+      const cust = getActiveCustomer();
+      requestPinAuthorization(
+        "बिल हटाने की पुष्टि",
+        `${formatDisplayDate(dateToDelete, false)} का रिकॉर्ड हटाने हेतु लॉगिन PIN दर्ज करें:`,
+        () => {
+          if (cust.bills[dateToDelete]) delete cust.bills[dateToDelete];
+          const validDates = getValidPurchaseDates(cust);
+          data.selectedDate = validDates.length > 0 ? validDates[0] : getTodayString();
+          saveToStorage();
+          loadCustomerBill();
+          renderBillDeleteTable();
+        },
+        'login',
+        "हटाएं"
+      );
+    }
+
+    function onCustomerChange() {
+      cleanupEmptyBills();
+      data.selectedCustomerId = Number(document.getElementById('customerSelect').value);
+      const cust = getActiveCustomer();
+      const validDates = getValidPurchaseDates(cust);
+      data.selectedDate = validDates.length > 0 ? validDates[0] : getTodayString();
+      loadCustomerBill();
+      if (window.innerWidth < 1024) mobileSwitchTab('bill');
+    }
+
+    function activateCustomer(custId) {
+      cleanupEmptyBills();
+      data.selectedCustomerId = custId;
+      const cust = getActiveCustomer();
+      const validDates = getValidPurchaseDates(cust);
+      data.selectedDate = validDates.length > 0 ? validDates[0] : getTodayString();
+      loadCustomerBill();
+      if (window.innerWidth < 1024) mobileSwitchTab('bill');
+    }
+
+    function handleCustomerSearch(query) {
+      const q = (query || '').toLowerCase().trim();
+      const resultsContainer = document.getElementById('customerSearchResults');
+      if (!q) { resultsContainer.classList.add('hidden'); return; }
+
+      const matches = data.customers.filter((c, idx) => {
+        const pageNum = (idx + 1).toString();
+        return c.name.toLowerCase().includes(q) || pageNum === q;
+      });
+
+      if (matches.length === 0) {
+        resultsContainer.innerHTML = `<div class="p-2.5 text-xs text-slate-400 font-bold text-center">कोई नहीं मिला</div>`;
+        resultsContainer.classList.remove('hidden');
+        return;
+      }
+
+      resultsContainer.innerHTML = matches.map(c => {
+        const originalIdx = data.customers.findIndex(cust => cust.id === c.id);
+        const isActive = c.id === data.selectedCustomerId;
+        return `
+          <div onclick="activateCustomer(${c.id}); document.getElementById('customerSearchResults').classList.add('hidden');" 
+            class="p-2 hover:bg-emerald-50 cursor-pointer flex justify-between items-center text-xs transition ${isActive ? 'bg-emerald-100 font-black' : 'font-bold'}">
+            <span>${c.name}</span>
+            <span class="text-[9px] bg-slate-200 text-slate-700 px-1 py-0.2 rounded font-mono">P.${originalIdx + 1}</span>
+          </div>
+        `;
+      }).join('');
+      resultsContainer.classList.remove('hidden');
+    }
+
+    function handleCustomerSearchKey(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = (e.target.value || '').toLowerCase().trim();
+        const match = data.customers.find((c, idx) => c.name.toLowerCase().includes(q) || (idx + 1).toString() === q);
+        if (match) {
+          activateCustomer(match.id);
+          document.getElementById('customerSearchResults').classList.add('hidden');
+          e.target.blur();
+        }
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const searchBox = document.getElementById('customerSearchInput');
+      const results = document.getElementById('customerSearchResults');
+      if (searchBox && results && !searchBox.contains(e.target) && !results.contains(e.target)) {
+        results.classList.add('hidden');
+      }
+    });
+
+    function downloadBackupFile() {
+      const fullBackup = {
+        appName: "VihangamKiranaStore",
+        version: "3.5",
+        backupDate: new Date().toISOString(),
+        timestampReadable: `${getTodayString()} ${getNowTimeString()}`,
+        storeData: data,
+        customItems: getCustomItemsList(),
+        authUsers: authDb.users,
+        customerDeletePin: authDb.customerDeletePin,
+        customerAddPin: authDb.customerAddPin
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullBackup, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Vihangam_Kirana_Backup_${getTodayString()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function saveToStorage() {
+      cleanupEmptyBills();
+      localStorage.setItem('vihangam_kirana_dmy_clean_v3', JSON.stringify(data));
+      clearTimeout(driveWriteDebounceTimer);
+      driveWriteDebounceTimer = setTimeout(() => saveDirectlyToChosenDrive(), 500);
+    }
+
+    function openBackupRestoreModal() {
+      updateDriveUI();
+      document.getElementById('backupRestoreModal').classList.remove('hidden');
+    }
+    function closeBackupRestoreModal() {
+      document.getElementById('backupRestoreModal').classList.add('hidden');
+    }
+
+    function handleFileUploadRestore(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && (parsed.storeData || parsed.customers)) {
+            if (confirm("बैकअप फ़ाइल से डेटा रीस्टोर करें?")) {
+              data = parsed.storeData || parsed;
+              if (parsed.customItems) saveCustomItemsList(parsed.customItems);
+              if (parsed.authUsers) authDb.users = parsed.authUsers;
+              if (parsed.customerDeletePin) authDb.customerDeletePin = parsed.customerDeletePin;
+              if (parsed.customerAddPin) authDb.customerAddPin = parsed.customerAddPin;
+              localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+              saveToStorage();
+              loadCustomerBill();
+              closeBackupRestoreModal();
+              alert("डेटा रीस्टोर हो गया!");
+            }
+          }
+        } catch (err) { alert("फ़ाइल पढ़ी नहीं जा सकी।"); }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('loginPassword').value.trim();
+      const user = authDb.users.find(u => u.password === pass);
+      if (user) {
+        authDb.currentSessionUser = user;
+        localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+        hideAuthOverlay();
+        document.getElementById('loginPassword').value = '';
+        loadCustomerBill();
+        checkFolderSetupPrompt();
+      } else {
+        const err = document.getElementById('loginErrorMsg');
+        err.innerText = "❌ गलत PIN!";
+        err.classList.remove('hidden');
+      }
+    }
+
+    function handleSignUp(e) {
+      e.preventDefault();
+      const name = document.getElementById('signupName').value.trim();
+      const pass = document.getElementById('signupPassword').value.trim();
+      const confirmPass = document.getElementById('signupConfirmPassword').value.trim();
+      const err = document.getElementById('signupErrorMsg');
+
+      if (pass.length !== 6 || pass !== confirmPass) {
+        err.innerText = "❌ PIN 6 अंकों का होना चाहिए!";
+        err.classList.remove('hidden');
+        return;
+      }
+      const newUser = { name, password: pass };
+      authDb.users.push(newUser);
+      authDb.currentSessionUser = newUser;
+      localStorage.setItem('vihangam_auth_users_db_v7', JSON.stringify(authDb));
+      hideAuthOverlay();
+      loadCustomerBill();
+      checkFolderSetupPrompt();
+    }
+
+    function getActiveCustomer() {
+      return data.customers.find(c => c.id === data.selectedCustomerId) || data.customers[0];
+    }
+
+    function getActiveBill() {
+      const customer = getActiveCustomer();
+      if (!customer.bills) customer.bills = {};
+      if (!customer.bills[data.selectedDate]) {
+        customer.bills[data.selectedDate] = {
+          items: [{ id: Date.now(), name: "", price: 0 }],
+          paid: 0,
+          paidBy: "स्वयं",
+          paidMode: "नकद (Cash)",
+          paidNote: "",
+          trash: []
+        };
+      }
+      if (customer.bills[data.selectedDate].paid === undefined) customer.bills[data.selectedDate].paid = 0;
+      if (!customer.bills[data.selectedDate].paidBy) customer.bills[data.selectedDate].paidBy = "स्वयं";
+      return customer.bills[data.selectedDate];
+    }
+
+    function updateBillPaidAmount(val) {
+      const bill = getActiveBill();
+      bill.paid = parseFloat(val) || 0;
+      if (!bill.paidMode) bill.paidMode = "नकद (Cash)";
+      calculateTotals();
+      saveToStorage();
+    }
+
+    function updateBillPaidBy(val) {
+      const bill = getActiveBill();
+      bill.paidBy = (val || '').trim() || "स्वयं";
+      saveToStorage();
+    }
+
+    function loadCustomerBill() {
+      const customer = getActiveCustomer();
+      if (!customer) return;
+      const bill = getActiveBill();
+
+      document.getElementById('billCustomerNameDisplay').innerText = customer.name;
+      
+      const pureDMY = formatDisplayDate(data.selectedDate, false);
+      document.getElementById('billPrintDateFormatted').innerText = pureDMY;
+      document.getElementById('topControlDateDMY').innerText = pureDMY;
+      document.getElementById('topControlDayName').innerText = getDayNameOnly(data.selectedDate);
+      document.getElementById('billDatePicker').value = data.selectedDate;
+      document.getElementById('summarySelectedDateText').innerText = pureDMY;
+      document.getElementById('trashCount').innerText = (bill.trash || []).length;
+
+      const paidInput = document.getElementById('billPaidInput');
+      if (paidInput) paidInput.value = (bill.paid && bill.paid > 0) ? bill.paid : '';
+
+      const paidByInput = document.getElementById('billPaidByInput');
+      if (paidByInput) paidByInput.value = (bill.paidBy && bill.paidBy !== "स्वयं") ? bill.paidBy : '';
+
+      const validDates = getValidPurchaseDates(customer);
+      document.getElementById('custDatesBadgeCount').innerText = validDates.length;
+
+      const cIdx = data.customers.findIndex(c => c.id === customer.id);
+      document.getElementById('billPageNumber').innerText = cIdx + 1;
+      document.getElementById('topControlPageBadge').innerText = (data.lang === 'en' ? 'P.' : 'पेज: ') + (cIdx + 1);
+
+      updateCustomerDelBtnLabel();
+      updateCustomerAddBtnLabel();
+      populateCustomerDropdown();
+
+      if (data.activeViewMode === 'ledger') renderAllDatesLedger();
+      else renderSingleDateTable(bill.items);
+
+      calculateTotals();
+      saveToStorage();
+    }
+
+    function renderSingleDateTable(items) {
+      const tbody = document.getElementById('itemsTableBody');
+      tbody.innerHTML = '';
+      items.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="py-1 px-1.5 text-center text-slate-400 font-bold text-xs">${index + 1}</td>
+          <td class="py-1 px-1">
+            <input type="text" list="kiranaCommonItems" value="${item.name || ''}" placeholder="सामान..." oninput="updateItem(${index}, 'name', this.value)"
+              class="w-full input-fluid py-1 px-2 rounded-lg font-bold text-slate-800 text-xs">
+          </td>
+          <td class="py-1 px-1 text-right">
+            <input type="number" min="0" step="any" value="${(item.price !== undefined && item.price !== 0) ? item.price : ''}" oninput="updateItem(${index}, 'price', this.value)" onkeydown="if(event.key==='Enter'){addNewRow();}" inputmode="decimal"
+              class="w-20 sm:w-28 text-right input-fluid-amber font-black text-slate-900 py-1 px-1.5 rounded-lg font-mono text-xs">
+          </td>
+          <td class="py-1 px-1 text-center no-print">
+            <button onclick="moveToTrash(${index})" class="text-rose-400 hover:text-rose-700 p-1"><i class="fa-regular fa-trash-can text-xs"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAllDatesLedger() {
+      const container = document.getElementById('allDatesLedgerContainer');
+      const cust = getActiveCustomer();
+      container.innerHTML = '';
+
+      const validDates = getValidPurchaseDates(cust);
+      if (validDates.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-slate-400 font-bold text-xs">कोई रिकॉर्ड नहीं है।</div>`;
+        return;
+      }
+
+      validDates.forEach(dateKey => {
+        const b = cust.bills[dateKey];
+        const dateSubtotal = (b.items || []).reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+        const datePaid = parseFloat(b.paid || 0);
+        const dateDue = dateSubtotal - datePaid;
+        
+        const dateBlock = document.createElement('div');
+        dateBlock.className = "border border-slate-200 rounded-xl p-2 bg-slate-50/70 text-xs";
+
+        let tableRows = '';
+        const realItems = (b.items || []).filter(it => it.name && it.name.trim());
+        if (realItems.length > 0) {
+          realItems.forEach((it, idx) => {
+            tableRows += `
+              <tr class="hover:bg-slate-100">
+                <td class="py-1 px-1.5 text-slate-400 w-6">${idx + 1}</td>
+                <td class="py-1 px-2 font-bold text-slate-800">${it.name}</td>
+                <td class="py-1 px-2 text-right font-black font-mono">₹${parseFloat(it.price || 0).toFixed(2)}</td>
+              </tr>
+            `;
+          });
+        } else {
+          tableRows = `<tr><td colspan="3" class="py-1.5 px-2 text-emerald-800 font-bold italic">💰 केवल जमा: ₹${datePaid.toFixed(2)}</td></tr>`;
+        }
+
+        dateBlock.innerHTML = `
+          <div class="flex justify-between items-center pb-1.5 border-b border-slate-200 mb-1.5 gap-1 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono font-black text-[11px] bg-emerald-100 text-emerald-950 px-2 py-0.2 rounded border border-emerald-300">
+                ${formatDisplayDate(dateKey, true)}
+              </span>
+              <button onclick="onDateChange('${dateKey}'); switchBillView('single');" class="text-[11px] text-indigo-600 font-black">
+                खोलें
+              </button>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] font-black font-mono">
+              <span>बिल: ₹${dateSubtotal.toFixed(2)}</span>
+              <span class="text-emerald-700">जमा: -₹${datePaid.toFixed(2)}</span>
+              <span class="${dateDue > 0 ? 'text-rose-700 bg-rose-100' : 'text-emerald-800 bg-emerald-100'} px-1.5 py-0.2 rounded">
+                अंतर: ₹${dateDue.toFixed(2)}
+              </span>
+            </div>
+          </div>
+          <table class="w-full text-xs">
+            <tbody>${tableRows}</tbody>
+          </table>
+        `;
+        container.appendChild(dateBlock);
+      });
+    }
+
+    function updateItem(index, field, value) {
+      const bill = getActiveBill();
+      bill.items[index][field] = (field === 'price') ? (parseFloat(value) || 0) : value;
+      calculateTotals();
+      saveToStorage();
+    }
+
+    function addNewRow() {
+      const bill = getActiveBill();
+      bill.items.push({ id: Date.now(), name: '', price: 0 });
+      if (data.activeViewMode === 'ledger') switchBillView('single');
+      renderSingleDateTable(bill.items);
+      saveToStorage();
+      setTimeout(() => {
+        const container = document.getElementById('itemsTableContainer');
+        container.scrollTop = container.scrollHeight;
+        const rows = document.querySelectorAll('#itemsTableBody tr');
+        if (rows.length > 0) {
+          const lastInput = rows[rows.length - 1].querySelector('input');
+          if (lastInput) lastInput.focus();
+        }
+      }, 40);
+    }
+
+    function openUnifiedModal(defaultTab = 'bulk') {
+      document.getElementById('singleItemName').value = '';
+      document.getElementById('singleItemPrice').value = '';
+      initBulkInputRows();
+      switchModalTab(defaultTab);
+      document.getElementById('unifiedItemModal').classList.remove('hidden');
+    }
+    function closeUnifiedModal() {
+      document.getElementById('unifiedItemModal').classList.add('hidden');
+    }
+
+    function switchModalTab(tab) {
+      const singleBtn = document.getElementById('tabSingleBtn');
+      const bulkBtn = document.getElementById('tabBulkBtn');
+      const singleView = document.getElementById('viewSingleItem');
+      const bulkView = document.getElementById('viewBulkItems');
+
+      if (tab === 'single') {
+        singleBtn.className = "flex-1 py-1 rounded-lg bg-white text-emerald-800 shadow-xs font-black";
+        bulkBtn.className = "flex-1 py-1 rounded-lg text-slate-500";
+        singleView.classList.remove('hidden');
+        bulkView.classList.add('hidden');
+      } else {
+        bulkBtn.className = "flex-1 py-1 rounded-lg bg-white text-emerald-800 shadow-xs font-black";
+        singleBtn.className = "flex-1 py-1 rounded-lg text-slate-500";
+        bulkView.classList.remove('hidden');
+        singleView.classList.add('hidden');
+      }
+    }
+
+    function handleSingleItemSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('singleItemName').value.trim();
+      const price = parseFloat(document.getElementById('singleItemPrice').value) || 0;
+      if (!name) return;
+
+      const bill = getActiveBill();
+      if (bill.items.length === 1 && (!bill.items[0].name || bill.items[0].name.trim() === '') && (!bill.items[0].price || bill.items[0].price == 0)) {
+        bill.items[0].name = name;
+        bill.items[0].price = price;
+      } else {
+        bill.items.push({ id: Date.now(), name: name, price: price });
+      }
+
+      if (data.activeViewMode === 'ledger') switchBillView('single');
+      closeUnifiedModal();
+      loadCustomerBill();
+    }
+
+    function initBulkInputRows() {
+      const container = document.getElementById('bulkRowsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= 3; i++) addBulkInputRow();
+    }
+
+    function addBulkInputRow() {
+      const container = document.getElementById('bulkRowsContainer');
+      const rowIdx = container.children.length + 1;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = "flex items-center gap-1.5 bulk-item-row";
+      rowDiv.innerHTML = `
+        <span class="w-4 text-center font-black text-slate-400 text-[10px]">${rowIdx}.</span>
+        <input type="text" list="kiranaCommonItems" placeholder="सामान..." class="flex-1 input-fluid p-1.5 rounded-lg font-bold text-slate-900 text-xs bulk-row-name">
+        <input type="number" min="0" step="any" placeholder="₹" inputmode="decimal" class="w-16 text-right input-fluid-amber p-1.5 rounded-lg font-black text-slate-900 text-xs font-mono bulk-row-price">
+        <button type="button" onclick="this.parentElement.remove();" class="text-rose-400 p-1">
+          <i class="fa-regular fa-trash-can text-xs"></i>
+        </button>
+      `;
+      container.appendChild(rowDiv);
+    }
+
+    function handleBulkAddSubmit(e) {
+      e.preventDefault();
+      const rows = document.querySelectorAll('#bulkRowsContainer .bulk-item-row');
+      const itemsToAdd = [];
+
+      rows.forEach(r => {
+        const nameInput = r.querySelector('.bulk-row-name');
+        const priceInput = r.querySelector('.bulk-row-price');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+        if (name) itemsToAdd.push({ id: Date.now() + Math.random(), name: name, price: price });
+      });
+
+      if (itemsToAdd.length === 0) return alert("कम से कम एक सामान का नाम लिखें!");
+
+      const bill = getActiveBill();
+      if (bill.items.length === 1 && (!bill.items[0].name || bill.items[0].name.trim() === '') && (!bill.items[0].price || bill.items[0].price == 0)) {
+        bill.items = [];
+      }
+
+      itemsToAdd.forEach(it => bill.items.push(it));
+      if (data.activeViewMode === 'ledger') switchBillView('single');
+      closeUnifiedModal();
+      loadCustomerBill();
+    }
+
+    function moveToTrash(index) {
+      const bill = getActiveBill();
+      const removed = bill.items.splice(index, 1)[0];
+      if (removed && removed.name && removed.name.trim() !== '') {
+        if (!bill.trash) bill.trash = [];
+        bill.trash.unshift(removed);
+      }
+      if (bill.items.length === 0) {
+        bill.items.push({ id: Date.now(), name: '', price: 0 });
+      }
+      loadCustomerBill();
+    }
+
+    function calculateTotals() {
+      const bill = getActiveBill();
+      const customer = getActiveCustomer();
+      
+      const dateGross = (bill.items || []).reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
+      document.getElementById('billGrossAmount').innerText = dateGross.toFixed(2);
+      document.getElementById('currentDateSeparateTotal').innerText = dateGross.toFixed(2);
+
+      const datePaid = parseFloat(bill.paid || 0);
+      document.getElementById('currentDatePaidDisplay').innerText = datePaid.toFixed(2);
+
+      const dateNetDue = dateGross - datePaid;
+      const netDueElem = document.getElementById('billNetDueAmount');
+      const dueCard = document.getElementById('netDueCard');
+
+      netDueElem.innerText = (dateNetDue < 0 ? 0 : dateNetDue).toFixed(2);
+      document.getElementById('currentDateDueDisplay').innerText = (dateNetDue < 0 ? 0 : dateNetDue).toFixed(2);
+
+      if (dateNetDue <= 0 && dateGross > 0) {
+        dueCard.className = "bg-emerald-50 px-2 py-1.5 rounded-lg border border-emerald-300 shadow-xs flex justify-between items-center";
+      } else {
+        dueCard.className = "bg-rose-50 px-2 py-1.5 rounded-lg border border-rose-300 shadow-xs flex justify-between items-center";
+      }
+
+      let custTotalGross = 0, custTotalPaid = 0;
+      const validDates = getValidPurchaseDates(customer);
+
+      validDates.forEach(d => {
+        const b = customer.bills[d];
+        custTotalGross += (b.items || []).reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
+        custTotalPaid += parseFloat(b.paid || 0);
+      });
+
+      const custNetDue = Math.max(0, custTotalGross - custTotalPaid);
+      document.getElementById('allTimeTotal').innerText = custTotalGross.toFixed(2);
+      document.getElementById('allTimePaidDisplay').innerText = custTotalPaid.toFixed(2);
+      document.getElementById('allTimeDueDisplay').innerText = custNetDue.toFixed(2);
+
+      const warnBadge = document.getElementById('custMultiDateWarningBadge');
+      if (warnBadge) {
+        warnBadge.innerText = validDates.length > 1 ? `${validDates.length} तारीखें` : `1 तारीख`;
+      }
+
+      let storeGrandGross = 0, storeGrandPaid = 0;
+      data.customers.forEach(c => {
+        const cValidDates = getValidPurchaseDates(c);
+        cValidDates.forEach(d => {
+          const b = c.bills[d];
+          storeGrandGross += (b.items || []).reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
+          storeGrandPaid += parseFloat(b.paid || 0);
+        });
+      });
+      const storeGrandDue = Math.max(0, storeGrandGross - storeGrandPaid);
+
+      document.getElementById('allCustomersGrandTotal').innerText = storeGrandGross.toFixed(2);
+      document.getElementById('storeGrandPaidDisplay').innerText = storeGrandPaid.toFixed(2);
+      document.getElementById('storeGrandDueDisplay').innerText = storeGrandDue.toFixed(2);
+    }
+
+    function populateCustomerDropdown() {
+      const sel = document.getElementById('customerSelect');
+      sel.innerHTML = '';
+      data.customers.forEach((c, idx) => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `[P.${idx + 1}] ${c.name}`;
+        if (c.id === data.selectedCustomerId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function onDateChange(newDate) {
+      if (!newDate) return;
+      data.selectedDate = newDate;
+      loadCustomerBill();
+    }
+
+    function setTodayDate() { onDateChange(getTodayString()); }
+
+    function switchBillView(mode) {
+      data.activeViewMode = mode;
+      document.getElementById('singleDateViewContainer').classList.toggle('hidden', mode === 'ledger');
+      document.getElementById('allDatesLedgerContainer').classList.toggle('hidden', mode === 'single');
+      
+      const singleBtn = document.getElementById('viewSingleDateBtn');
+      const ledgerBtn = document.getElementById('viewAllLedgerBtn');
+      if (mode === 'single') {
+        singleBtn.className = "px-2 py-0.5 rounded font-black text-[11px] bg-white text-emerald-800 shadow-xs";
+        ledgerBtn.className = "px-2 py-0.5 rounded font-bold text-[11px] text-slate-500";
+      } else {
+        ledgerBtn.className = "px-2 py-0.5 rounded font-black text-[11px] bg-white text-emerald-800 shadow-xs";
+        singleBtn.className = "px-2 py-0.5 rounded font-bold text-[11px] text-slate-500";
+      }
+      loadCustomerBill();
+    }
+
+    function openCustomerDatesModal() {
+      const cust = getActiveCustomer();
+      document.getElementById('custDatesModalTitle').innerHTML = `📅 <span class="text-emerald-800 font-extrabold">${cust.name}</span> तारीखें`;
+      document.getElementById('modalNewDatePicker').value = getTodayString();
+      const tbody = document.getElementById('custDatesPopupTableBody');
+      tbody.innerHTML = '';
+
+      const validDates = getValidPurchaseDates(cust);
+      if (validDates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400 font-bold">कोई तारीख नहीं है।</td></tr>`;
+      } else {
+        validDates.forEach(d => {
+          const total = (cust.bills[d].items || []).reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
+          const paid = parseFloat(cust.bills[d].paid || 0);
+          const isCurr = (d === data.selectedDate);
+          const tr = document.createElement('tr');
+          tr.className = isCurr ? "bg-emerald-50 font-bold" : "hover:bg-slate-50";
+          tr.innerHTML = `
+            <td class="p-2 font-bold font-mono">${formatDisplayDate(d, false)}</td>
+            <td class="p-2 text-center font-black">${(cust.bills[d].items || []).filter(i=>i.name && i.name.trim()).length}</td>
+            <td class="p-2 text-right font-bold">₹${total.toFixed(2)}</td>
+            <td class="p-2 text-right font-bold text-emerald-700">₹${paid.toFixed(2)}</td>
+            <td class="p-2 text-center">
+              <button onclick="onDateChange('${d}'); closeCustomerDatesModal();" class="btn-emerald text-white px-2 py-0.5 rounded text-xs font-bold">खोलें</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('customerDatesModal').classList.remove('hidden');
+    }
+    function closeCustomerDatesModal() {
+      document.getElementById('customerDatesModal').classList.add('hidden');
+    }
+
+    function addNewDateFromModal() {
+      const selected = document.getElementById('modalNewDatePicker').value;
+      if (!selected) return;
+      const cust = getActiveCustomer();
+      if (!cust.bills[selected]) {
+        cust.bills[selected] = { items: [{ id: Date.now(), name: "", price: 0 }], paid: 0, paidBy: "स्वयं", trash: [] };
+      }
+      data.selectedDate = selected;
+      closeCustomerDatesModal();
+      loadCustomerBill();
+    }
+
+    function openHistoryModal() {
+      const filterSel = document.getElementById('historyCustomerFilter');
+      filterSel.innerHTML = `<option value="">-- सभी ग्राहक --</option>`;
+      data.customers.forEach(c => filterSel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+      document.getElementById('historySearchInput').value = '';
+      document.getElementById('historyDateFilter').value = '';
+      renderHistoryTable();
+      document.getElementById('historyModal').classList.remove('hidden');
+    }
+    function closeHistoryModal() {
+      document.getElementById('historyModal').classList.add('hidden');
+    }
+
+    function renderHistoryTable() {
+      const search = (document.getElementById('historySearchInput').value || '').toLowerCase().trim();
+      const custFilter = document.getElementById('historyCustomerFilter').value;
+      const dateFilter = document.getElementById('historyDateFilter').value;
+      const tbody = document.getElementById('historyTableBody');
+      tbody.innerHTML = '';
+
+      let idx = 1;
+      let totalFilteredDue = 0;
+
+      data.customers.forEach(c => {
+        if (custFilter && c.id != custFilter) return;
+        if (search && !c.name.toLowerCase().includes(search)) return;
+
+        const validDates = getValidPurchaseDates(c);
+        validDates.forEach(d => {
+          if (dateFilter && d !== dateFilter) return;
+
+          const bill = c.bills[d];
+          const gross = (bill.items || []).reduce((s, i) => s + (parseFloat(i.price) || 0), 0);
+          const paid = parseFloat(bill.paid || 0);
+          const due = gross - paid;
+          if (due > 0) totalFilteredDue += due;
+
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50";
+          tr.innerHTML = `
+            <td class="p-2 text-center text-slate-400 font-bold">${idx++}</td>
+            <td class="p-2 font-bold text-slate-800">${c.name}</td>
+            <td class="p-2 text-center font-mono">${formatDisplayDate(d, false)}</td>
+            <td class="p-2 text-right font-black font-mono">₹${gross.toFixed(2)}</td>
+            <td class="p-2 text-right font-black font-mono text-emerald-700">₹${paid.toFixed(2)}</td>
+            <td class="p-2 text-right font-black font-mono">
+              ${due > 0 ? `<span class="text-rose-700">₹${due.toFixed(2)}</span>` : `<span class="text-emerald-700">✓ चुक्ता</span>`}
+            </td>
+            <td class="p-2 text-center">
+              <button onclick="data.selectedCustomerId=${c.id}; data.selectedDate='${d}'; closeHistoryModal(); loadCustomerBill(); mobileSwitchTab('bill');" class="btn-purple text-white px-2 py-0.5 rounded text-xs font-bold">खोलें</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+      if (idx === 1) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400 font-bold">कोई रिकॉर्ड नहीं मिला</td></tr>`;
+      }
+      document.getElementById('historyRecordCount').innerText = idx - 1;
+      document.getElementById('historyFilteredDue').innerText = totalFilteredDue.toFixed(2);
+    }
+
+    /* 💰 QUICK DEPOSIT */
+    function openQuickDepositModal(targetCustId = null) {
+      const sel = document.getElementById('quickDepositCustomerSelect');
+      sel.innerHTML = '';
+      data.customers.forEach((c, idx) => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `[P.${idx + 1}] ${c.name}`;
+        if (targetCustId ? (c.id === targetCustId) : (c.id === data.selectedCustomerId)) opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+      document.getElementById('quickDepositDate').value = getTodayString();
+      document.getElementById('quickDepositAmount').value = '';
+      document.getElementById('quickDepositPayerName').value = '';
+      document.getElementById('quickDepositNote').value = '';
+      document.getElementById('quickDepositModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('quickDepositAmount').focus(), 80);
+    }
+    function closeQuickDepositModal() {
+      document.getElementById('quickDepositModal').classList.add('hidden');
+    }
+
+    function handleQuickDepositSubmit(e) {
+      e.preventDefault();
+      const custId = Number(document.getElementById('quickDepositCustomerSelect').value);
+      const date = document.getElementById('quickDepositDate').value;
+      const mode = document.getElementById('quickDepositMode').value;
+      const amt = parseFloat(document.getElementById('quickDepositAmount').value) || 0;
+      const payer = document.getElementById('quickDepositPayerName').value.trim() || "स्वयं";
+      const note = document.getElementById('quickDepositNote').value.trim();
+
+      if (amt <= 0) return alert("वैध राशि दर्ज करें!");
+
+      const cust = data.customers.find(c => c.id === custId);
+      if (!cust) return;
+
+      if (!cust.bills) cust.bills = {};
+      if (!cust.bills[date]) {
+        cust.bills[date] = { items: [{ id: Date.now(), name: "", price: 0 }], paid: 0, paidBy: "स्वयं", trash: [] };
+      }
+
+      cust.bills[date].paid = amt;
+      cust.bills[date].paidBy = payer;
+      cust.bills[date].paidMode = mode;
+      cust.bills[date].paidNote = note;
+
+      data.selectedCustomerId = custId;
+      data.selectedDate = date;
+
+      closeQuickDepositModal();
+      loadCustomerBill();
+      showDepositReceiptSlip(custId, date);
+      if (window.innerWidth < 1024) mobileSwitchTab('bill');
+    }
+
+    /* ✏️ EDIT DEPOSIT */
+    function openEditDepositModal(custId, dateKey) {
+      const cust = data.customers.find(c => c.id == custId);
+      if (!cust || !cust.bills || !cust.bills[dateKey]) return;
+      const b = cust.bills[dateKey];
+
+      document.getElementById('editDepositCustId').value = custId;
+      document.getElementById('editDepositDateKey').value = dateKey;
+      document.getElementById('editDepositAmountInput').value = b.paid || 0;
+      document.getElementById('editDepositPayerInput').value = b.paidBy || '';
+      document.getElementById('editDepositModeInput').value = b.paidMode || 'नकद (Cash)';
+      document.getElementById('editDepositNoteInput').value = b.paidNote || '';
+
+      document.getElementById('editDepositModal').classList.remove('hidden');
+    }
+    function closeEditDepositModal() {
+      document.getElementById('editDepositModal').classList.add('hidden');
+    }
+
+    function handleSaveEditDeposit(e) {
+      e.preventDefault();
+      const custId = Number(document.getElementById('editDepositCustId').value);
+      const dateKey = document.getElementById('editDepositDateKey').value;
+      const newAmt = parseFloat(document.getElementById('editDepositAmountInput').value) || 0;
+      const newPayer = document.getElementById('editDepositPayerInput').value.trim() || "स्वयं";
+      const newMode = document.getElementById('editDepositModeInput').value;
+      const newNote = document.getElementById('editDepositNoteInput').value.trim();
+
+      const cust = data.customers.find(c => c.id === custId);
+      if (cust && cust.bills && cust.bills[dateKey]) {
+        cust.bills[dateKey].paid = newAmt;
+        cust.bills[dateKey].paidBy = newPayer;
+        cust.bills[dateKey].paidMode = newMode;
+        cust.bills[dateKey].paidNote = newNote;
+
+        saveToStorage();
+        loadCustomerBill();
+        renderDepositReportTable();
+        closeEditDepositModal();
+        alert("✓ विवरण अपडेट हो गया!");
+      }
+    }
+
+    /* ⚠️ DUE REPORT */
+    function openDueReportModal() {
+      document.getElementById('dueSearchInput').value = '';
+      document.getElementById('dueFilterStatus').value = 'due_only';
+      document.getElementById('dueSortOrder').value = 'highest_first';
+      renderDueReportTable();
+      document.getElementById('dueReportModal').classList.remove('hidden');
+    }
+    function closeDueReportModal() {
+      document.getElementById('dueReportModal').classList.add('hidden');
+    }
+
+    function renderDueReportTable() {
+      const search = (document.getElementById('dueSearchInput').value || '').toLowerCase().trim();
+      const filterStatus = document.getElementById('dueFilterStatus').value;
+      const sortOrder = document.getElementById('dueSortOrder').value;
+      const tbody = document.getElementById('dueReportTableBody');
+      tbody.innerHTML = '';
+
+      let totalMarketDue = 0, countWithDue = 0, countCleared = 0;
+
+      let customerSummaries = data.customers.map((c, originalIdx) => {
+        let gross = 0, paid = 0, lastDate = "";
+
+        if (c.bills) {
+          const dates = Object.keys(c.bills).sort();
+          dates.forEach(d => {
+            const b = c.bills[d];
+            gross += (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+            paid += parseFloat(b.paid || 0);
+            if (b.items?.length > 0 || b.paid > 0) lastDate = d;
+          });
+        }
+
+        const netDue = Math.max(0, gross - paid);
+        if (netDue > 0) {
+          totalMarketDue += netDue;
+          countWithDue++;
+        } else {
+          countCleared++;
+        }
+
+        return {
+          id: c.id,
+          name: c.name,
+          pageNum: originalIdx + 1,
+          totalGross: gross,
+          totalPaid: paid,
+          netDue: netDue,
+          lastDate: lastDate
+        };
+      });
+
+      document.getElementById('dueReportTotalMarketDue').innerText = totalMarketDue.toFixed(2);
+      document.getElementById('dueReportDueCustCount').innerText = countWithDue;
+      document.getElementById('dueReportClearedCustCount').innerText = countCleared;
+
+      if (search) {
+        customerSummaries = customerSummaries.filter(c => c.name.toLowerCase().includes(search) || c.pageNum.toString() === search);
+      }
+      if (filterStatus === 'due_only') customerSummaries = customerSummaries.filter(c => c.netDue > 0);
+      else if (filterStatus === 'cleared_only') customerSummaries = customerSummaries.filter(c => c.netDue === 0);
+
+      if (sortOrder === 'highest_first') customerSummaries.sort((a, b) => b.netDue - a.netDue);
+      else if (sortOrder === 'lowest_first') customerSummaries.sort((a, b) => a.netDue - b.netDue);
+      else if (sortOrder === 'name_asc') customerSummaries.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+
+      if (customerSummaries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 font-bold">कोई रिकॉर्ड नहीं मिला।</td></tr>`;
+        return;
+      }
+
+      customerSummaries.forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-rose-50/50";
+        tr.innerHTML = `
+          <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
+          <td class="p-2 text-center font-mono font-bold text-slate-600">P.${c.pageNum}</td>
+          <td class="p-2 font-black text-slate-800">${c.name}</td>
+          <td class="p-2 text-right font-mono font-bold">₹${c.totalGross.toFixed(2)}</td>
+          <td class="p-2 text-right font-mono font-bold text-emerald-700">₹${c.totalPaid.toFixed(2)}</td>
+          <td class="p-2 text-right font-mono font-black">
+            ${c.netDue > 0 ? `<span class="text-rose-700">₹${c.netDue.toFixed(2)}</span>` : `<span class="text-emerald-700">✓ चुक्ता</span>`}
+          </td>
+          <td class="p-2 text-center">
+            <div class="flex items-center justify-center gap-1">
+              ${c.netDue > 0 ? `
+                <button onclick="sendDueReminderWhatsApp(${c.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-black" title="व्हाट्सएप तकादा">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </button>
+              ` : ''}
+              <button onclick="closeDueReportModal(); openQuickDepositModal(${c.id});" class="bg-amber-500 text-slate-950 px-2 py-1 rounded text-xs font-black">
+                💰 जमा
+              </button>
+              <button onclick="closeDueReportModal(); activateCustomer(${c.id});" class="btn-slate text-white px-2 py-1 rounded text-xs font-bold">
+                खाता
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function sendDueReminderWhatsApp(custId) {
+      const cust = data.customers.find(c => c.id === custId);
+      if (!cust) return;
+
+      let totalG = 0, totalP = 0, lastDate = "";
+      if (cust.bills) {
+        Object.keys(cust.bills).forEach(d => {
+          const b = cust.bills[d];
+          totalG += (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+          totalP += parseFloat(b.paid || 0);
+          if (b.items?.length > 0 || b.paid > 0) lastDate = d;
+        });
+      }
+
+      const due = Math.max(0, totalG - totalP);
+      if (due <= 0) return alert(`ग्राहक का कोई बकाया नहीं है!`);
+
+      const text = `*॥ श्री सुकृत देवाय नमः ॥*\n` +
+        `*विहंगम किराना स्टोर*\n` +
+        `--------------------------------\n` +
+        `सादर प्रणाम *${cust.name} जी*,\n` +
+        `किराना बहीखाते का विवरण:\n\n` +
+        `• कुल खरीद: ₹${totalG.toFixed(2)}\n` +
+        `• कुल जमा: ₹${totalP.toFixed(2)}\n` +
+        `• *शुद्ध बाकी बकाया: ₹${due.toFixed(2)}*\n` +
+        `• अंतिम तारीख: ${lastDate ? formatDisplayDate(lastDate, false) : '-'}\n` +
+        `--------------------------------\n` +
+        `कृपया सुविधानुसार बकाया राशि जमा कराएं। धन्यवाद! 🙏`;
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function printDueReportDirect() {
+      document.body.classList.add('print-due-mode');
+      window.print();
+      setTimeout(() => document.body.classList.remove('print-due-mode'), 800);
+    }
+
+    function exportDueReportCSV() {
+      let csv = "क्र.,पेज नं.,ग्राहक का नाम,कुल बिल (₹),कुल जमा (₹),शुद्ध बाकी उधार (₹),अंतिम तारीख\n";
+      let idx = 1;
+      data.customers.forEach((c, originalIdx) => {
+        let gross = 0, paid = 0, lastDate = "";
+        if (c.bills) {
+          Object.keys(c.bills).forEach(d => {
+            const b = c.bills[d];
+            gross += (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+            paid += parseFloat(b.paid || 0);
+            if (b.items?.length > 0 || b.paid > 0) lastDate = d;
+          });
+        }
+        const due = Math.max(0, gross - paid);
+        csv += `${idx++},P.${originalIdx + 1},"${c.name}",${gross.toFixed(2)},${paid.toFixed(2)},${due.toFixed(2)},"${lastDate || '-'}"\n`;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Vihangam_Due_Report_${getTodayString()}.csv`;
+      link.click();
+    }
+
+    /* 💰 DEPOSIT REPORT */
+    let currentDepositTab = 'current';
+    let currentActiveSlipData = null;
+
+    function openDepositReportModal(defaultTab = 'current') {
+      currentDepositTab = defaultTab;
+      document.getElementById('depositSearchInput').value = '';
+      document.getElementById('depositDateFilter').value = '';
+      const activeCust = getActiveCustomer();
+      const tabName = document.getElementById('depCurrentCustTabName');
+      if (tabName && activeCust) tabName.innerText = activeCust.name;
+      switchDepositReportTab(defaultTab);
+      document.getElementById('depositReportModal').classList.remove('hidden');
+    }
+    function closeDepositReportModal() {
+      document.getElementById('depositReportModal').classList.add('hidden');
+    }
+
+    function switchDepositReportTab(tab) {
+      currentDepositTab = tab;
+      const tabCurrent = document.getElementById('depositTabCurrentCust');
+      const tabAll = document.getElementById('depositTabAllCust');
+      if (tab === 'current') {
+        tabCurrent.className = "flex-1 py-1.5 rounded-lg bg-white text-emerald-900 shadow-xs text-xs font-black";
+        tabAll.className = "flex-1 py-1.5 rounded-lg text-slate-500 text-xs font-black";
+      } else {
+        tabAll.className = "flex-1 py-1.5 rounded-lg bg-white text-emerald-900 shadow-xs text-xs font-black";
+        tabCurrent.className = "flex-1 py-1.5 rounded-lg text-slate-500 text-xs font-black";
+      }
+      renderDepositReportTable();
+    }
+
+    function setDepositTodayFilter() {
+      document.getElementById('depositDateFilter').value = getTodayString();
+      renderDepositReportTable();
+    }
+
+    function renderDepositReportTable() {
+      const search = (document.getElementById('depositSearchInput').value || '').toLowerCase().trim();
+      const dateFilter = document.getElementById('depositDateFilter').value;
+      const tbody = document.getElementById('depositReportTableBody');
+      tbody.innerHTML = '';
+
+      let idx = 1, totalDeposited = 0, depositCount = 0;
+      const customersToInspect = (currentDepositTab === 'current') ? [getActiveCustomer()] : data.customers;
+
+      customersToInspect.forEach(cust => {
+        if (!cust || !cust.bills) return;
+        const sortedDates = Object.keys(cust.bills).sort().reverse();
+        sortedDates.forEach(d => {
+          if (dateFilter && d !== dateFilter) return;
+          const bill = cust.bills[d];
+          const paidAmount = parseFloat(bill.paid || 0);
+
+          if (paidAmount > 0) {
+            const payer = bill.paidBy || "स्वयं";
+            if (search && !cust.name.toLowerCase().includes(search) && !payer.toLowerCase().includes(search)) return;
+
+            depositCount++;
+            totalDeposited += paidAmount;
+            const billGross = (bill.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+            const dateBalance = billGross - paidAmount;
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-emerald-50/50";
+            tr.innerHTML = `
+              <td class="p-2 text-center text-slate-400 font-bold">${idx++}</td>
+              <td class="p-2 font-bold font-mono">${formatDisplayDate(d, false)}</td>
+              <td class="p-2 font-black">${cust.name}</td>
+              <td class="p-2 text-indigo-700 font-bold">${payer}</td>
+              <td class="p-2 text-right font-mono font-bold">₹${billGross.toFixed(2)}</td>
+              <td class="p-2 text-right font-black font-mono text-emerald-800">+₹${paidAmount.toFixed(2)}</td>
+              <td class="p-2 text-right font-bold font-mono">
+                ${dateBalance <= 0 ? `<span class="text-emerald-700">✓ चुक्ता</span>` : `<span class="text-rose-700">₹${dateBalance.toFixed(2)}</span>`}
+              </td>
+              <td class="p-2 text-center flex items-center justify-center gap-1">
+                <button onclick="showDepositReceiptSlip('${cust.id}', '${d}')" class="btn-emerald text-white px-2 py-0.5 rounded text-xs">रसीद</button>
+                <button onclick="openEditDepositModal(${cust.id}, '${d}')" class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-xs font-bold">एडिट</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          }
+        });
+      });
+
+      if (idx === 1) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 font-bold">कोई रिकॉर्ड नहीं मिला।</td></tr>`;
+      }
+      document.getElementById('depReportTotalPaid').innerText = totalDeposited.toFixed(2);
+      document.getElementById('depReportCount').innerText = depositCount;
+
+      const activeCust = getActiveCustomer();
+      let activeCustNetDue = 0;
+      if (activeCust && activeCust.bills) {
+        let g = 0, p = 0;
+        Object.keys(activeCust.bills).forEach(d => {
+          const b = activeCust.bills[d];
+          g += (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+          p += parseFloat(b.paid || 0);
+        });
+        activeCustNetDue = Math.max(0, g - p);
+      }
+      document.getElementById('depReportBalanceDue').innerText = activeCustNetDue.toFixed(2);
+    }
+
+    function printCurrentDepositReceipt() {
+      const cust = getActiveCustomer();
+      const bill = getActiveBill();
+      const paid = parseFloat(bill.paid || 0);
+      if (paid <= 0) return alert("इस बिल में जमा राशि दर्ज नहीं है!");
+      showDepositReceiptSlip(cust.id, data.selectedDate);
+    }
+
+    function showDepositReceiptSlip(custId, dateKey) {
+      const cust = data.customers.find(c => c.id == custId) || getActiveCustomer();
+      if (!cust || !cust.bills || !cust.bills[dateKey]) return;
+
+      const bill = cust.bills[dateKey];
+      const paid = parseFloat(bill.paid || 0);
+      const payer = bill.paidBy || "स्वयं";
+      const gross = (bill.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+      const pageIdx = data.customers.findIndex(c => c.id === cust.id);
+
+      let totalG = 0, totalP = 0;
+      Object.keys(cust.bills).forEach(d => {
+        const b = cust.bills[d];
+        totalG += (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+        totalP += parseFloat(b.paid || 0);
+      });
+      const netDue = Math.max(0, totalG - totalP);
+
+      currentActiveSlipData = {
+        customerName: cust.name,
+        date: dateKey,
+        paid: paid,
+        paidBy: payer,
+        gross: gross,
+        netDue: netDue,
+        mode: bill.paidMode || "नकद (Cash)",
+        ref: `PAY-${cust.id.toString().slice(-4)}-${dateKey.replace(/-/g,'')}`
+      };
+
+      document.getElementById('receiptRefNo').innerText = currentActiveSlipData.ref;
+      document.getElementById('receiptDateDisplay').innerText = `${formatDisplayDate(dateKey, true)} ${getNowTimeString()}`;
+      document.getElementById('receiptCustomerDisplay').innerText = cust.name;
+      document.getElementById('receiptPayerDisplay').innerText = payer;
+      document.getElementById('receiptModeDisplay').innerText = currentActiveSlipData.mode;
+      document.getElementById('receiptPageNo').innerText = `P.${pageIdx + 1}`;
+      document.getElementById('receiptAmountDisplay').innerText = paid.toFixed(2);
+      document.getElementById('receiptAmountWords').innerText = `(${numberToHindiWords(paid)})`;
+      document.getElementById('receiptDateGross').innerText = gross.toFixed(2);
+      document.getElementById('receiptNetDue').innerText = netDue.toFixed(2);
+
+      document.getElementById('depositReceiptModal').classList.remove('hidden');
+    }
+    function closeDepositReceiptModal() {
+      document.getElementById('depositReceiptModal').classList.add('hidden');
+    }
+
+    function printDepositReceiptDirect() {
+      document.body.classList.add('print-receipt-mode');
+      window.print();
+      setTimeout(() => document.body.classList.remove('print-receipt-mode'), 800);
+    }
+
+    function shareReceiptOnWhatsApp() {
+      if (!currentActiveSlipData) return;
+      const s = currentActiveSlipData;
+      const text = `*॥ विहंगम किराना स्टोर ॥*\n` +
+        `*नकद जमा पावती (Payment Receipt)*\n` +
+        `--------------------------------\n` +
+        `रसीद नं: ${s.ref}\n` +
+        `ग्राहक: *${s.customerName}*\n` +
+        `जमाकर्ता: *${s.paidBy}*\n` +
+        `तारीख: ${formatDisplayDate(s.date, false)}\n` +
+        `माध्यम: ${s.mode}\n` +
+        `जमा राशि: *₹${s.paid.toFixed(2)}*\n` +
+        `(${numberToHindiWords(s.paid)})\n` +
+        `--------------------------------\n` +
+        `*कुल बाकी बकाया: ₹${s.netDue.toFixed(2)}*\n` +
+        `धन्यवाद! फिर पधारें।`;
+      
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function shareActiveBillOnWhatsApp() {
+      const cust = getActiveCustomer();
+      const bill = getActiveBill();
+      const items = (bill.items || []).filter(i => i.name && i.name.trim());
+      
+      let itemsTxt = "";
+      items.forEach((it, idx) => {
+        itemsTxt += `${idx + 1}. ${it.name} - ₹${parseFloat(it.price || 0).toFixed(2)}\n`;
+      });
+
+      const gross = items.reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+      const paid = parseFloat(bill.paid || 0);
+      const payer = bill.paidBy || "स्वयं";
+      const due = gross - paid;
+
+      const text = `*॥ श्री सुकृत देवाय नमः ॥*\n` +
+        `*विहंगम किराना स्टोर - बिल*\n` +
+        `--------------------------------\n` +
+        `ग्राहक: *${cust.name}*\n` +
+        `तारीख: ${formatDisplayDate(data.selectedDate, true)}\n` +
+        `--------------------------------\n` +
+        `*सामान विवरण:*\n` +
+        `${itemsTxt || 'कोई सामान नहीं'}` +
+        `--------------------------------\n` +
+        `कुल बिल: ₹${gross.toFixed(2)}\n` +
+        `जमा राशि: ₹${paid.toFixed(2)} ${paid > 0 ? '(' + payer + ')' : ''}\n` +
+        `*बाकी उधार: ₹${due > 0 ? due.toFixed(2) : '0.00 (चुक्ता)'}*\n` +
+        `धन्यवाद! 🙏`;
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function exportDepositReportCSV() {
+      let csv = "क्र.,तारीख,ग्राहक का नाम,जमाकर्ता,बिल राशि,जमा राशि,माध्यम\n";
+      let idx = 1;
+      data.customers.forEach(cust => {
+        if (!cust.bills) return;
+        Object.keys(cust.bills).forEach(d => {
+          const b = cust.bills[d];
+          const p = parseFloat(b.paid || 0);
+          if (p > 0) {
+            const gross = (b.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+            csv += `${idx++},"${d}","${cust.name}","${b.paidBy || 'स्वयं'}",${gross.toFixed(2)},${p.toFixed(2)},"${b.paidMode || 'नकद'}"\n`;
+          }
+        });
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Vihangam_Deposit_Report_${getTodayString()}.csv`;
+      link.click();
+    }
+
+    function numberToHindiWords(n) {
+      if (!n || isNaN(n)) return "शून्य रुपये मात्र";
+      const num = Math.floor(Math.abs(n));
+      if (num === 0) return "शून्य रुपये मात्र";
+
+      const units = ["", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ", "दस", "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस"];
+      const tens = ["", "", "बीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे"];
+
+      function convertBelowThousand(val) {
+        let str = "";
+        if (val >= 100) {
+          str += units[Math.floor(val / 100)] + " सौ ";
+          val %= 100;
+        }
+        if (val >= 20) {
+          str += tens[Math.floor(val / 10)] + " ";
+          if (val % 10 > 0) str += units[val % 10] + " ";
+        } else if (val > 0) {
+          str += units[val] + " ";
+        }
+        return str;
+      }
+
+      let res = "";
+      let crore = Math.floor(num / 10000000);
+      let rem = num % 10000000;
+      let lakh = Math.floor(rem / 100000);
+      rem %= 100000;
+      let thousand = Math.floor(rem / 1000);
+      rem %= 1000;
+
+      if (crore > 0) res += convertBelowThousand(crore) + "करोड़ ";
+      if (lakh > 0) res += convertBelowThousand(lakh) + "लाख ";
+      if (thousand > 0) res += convertBelowThousand(thousand) + "हजार ";
+      if (rem > 0) res += convertBelowThousand(rem);
+
+      return res.trim() + " रुपये मात्र";
+    }
+
+    function openTrashModal() {
+      const bill = getActiveBill();
+      const tbody = document.getElementById('trashTableBody');
+      tbody.innerHTML = (bill.trash || []).map((t, i) => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 font-bold">${t.name}</td>
+          <td class="p-2 text-right font-mono font-bold">₹${t.price}</td>
+          <td class="p-2 text-center">
+            <button onclick="getActiveBill().items.push(getActiveBill().trash.splice(${i},1)[0]); openTrashModal(); loadCustomerBill();" class="btn-emerald text-white px-2 py-0.5 rounded text-xs">रीस्टोर</button>
+          </td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="text-center py-3 text-slate-400 font-bold">बिन खाली है</td></tr>`;
+      document.getElementById('trashModal').classList.remove('hidden');
+    }
+    function closeTrashModal() { document.getElementById('trashModal').classList.add('hidden'); }
+    function emptyTrashPermanently() { 
+      getActiveBill().trash = []; 
+      closeTrashModal(); 
+      loadCustomerBill(); 
+    }
+
+    function switchAuthTab(tab) {
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+      document.getElementById('signupErrorMsg').classList.add('hidden');
+      document.getElementById('authChangePinMsg').classList.add('hidden');
+
+      const loginBtn = document.getElementById('loginTabBtn');
+      const signupBtn = document.getElementById('signupTabBtn');
+      const changePinBtn = document.getElementById('changePinTabBtn');
+      
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const authChangePinForm = document.getElementById('authChangePinForm');
+
+      loginBtn.className = "flex-1 py-1.5 rounded-lg text-slate-500 cursor-pointer";
+      signupBtn.className = "flex-1 py-1.5 rounded-lg text-slate-500 cursor-pointer";
+      changePinBtn.className = "flex-1 py-1.5 rounded-lg text-slate-500 cursor-pointer";
+      
+      loginForm.classList.add('hidden');
+      signupForm.classList.add('hidden');
+      authChangePinForm.classList.add('hidden');
+
+      if (tab === 'login') {
+        loginBtn.className = "flex-1 py-1.5 rounded-lg bg-white text-emerald-800 shadow-xs font-black";
+        loginForm.classList.remove('hidden');
+      } else if (tab === 'signup') {
+        signupBtn.className = "flex-1 py-1.5 rounded-lg bg-white text-emerald-800 shadow-xs font-black";
+        signupForm.classList.remove('hidden');
+      } else {
+        changePinBtn.className = "flex-1 py-1.5 rounded-lg bg-white text-amber-900 shadow-xs font-black";
+        authChangePinForm.classList.remove('hidden');
+      }
+    }
+
+    function togglePassVisibility(id, btn) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      }
+    }
+
+    (async function initApp() {
+      renderItemSuggestions();
+
+      try {
+        const savedHandle = await getStoredDirectoryHandleFromIDB();
+        if (savedHandle) {
+          customDirHandle = savedHandle;
+          driveConfig.folderName = savedHandle.name;
+        }
+      } catch (e) {}
+
+      updateDriveUI();
+
+      if (authDb.currentSessionUser) {
+        hideAuthOverlay();
+        checkFolderSetupPrompt();
+      } else {
+        showAuthOverlay();
+      }
+
+      const firstCust = getActiveCustomer();
+      const firstDates = getValidPurchaseDates(firstCust);
+      data.selectedDate = firstDates.length > 0 ? firstDates[0] : getTodayString();
+
+      cleanupEmptyBills();
+      applyLanguage(data.lang || 'hi');
+
+      // Set mobile bill view default
+      if (window.innerWidth < 1024) {
+        mobileSwitchTab('bill');
+      }
+    })();
+  </script>
+</body>
+</html>
+
