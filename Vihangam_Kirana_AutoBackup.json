@@ -1,0 +1,75 @@
+{
+  "appName": "VihangamKiranaStore",
+  "version": "3.4",
+  "backupDate": "2026-09-11T00:30:19.624Z",
+  "timestampReadable": "2026-09-11 06:00:19 AM",
+  "storeData": {
+    "lang": "hi",
+    "activeViewMode": "single",
+    "customers": [
+      {
+        "id": 1,
+        "name": "राजेश चौहान",
+        "bills": {
+          "2026-09-11": {
+            "items": [
+              {
+                "id": 101,
+                "name": "चीनी (Sugar)",
+                "price": 84
+              },
+              {
+                "id": 102,
+                "name": "सरसों तेल (Mustard Oil)",
+                "price": 140
+              }
+            ],
+            "paid": 100,
+            "paidBy": "स्वयं",
+            "paidMode": "नकद (Cash)",
+            "paidNote": "हाथ से जमा",
+            "trash": []
+          }
+        }
+      }
+    ],
+    "selectedCustomerId": 1,
+    "selectedDate": "2026-09-11"
+  },
+  "customItems": [
+    "चीनी (Sugar)",
+    "आटा (Wheat Flour)",
+    "चावल (Rice)",
+    "सरसों तेल (Mustard Oil)",
+    "रिफाइंड तेल (Refined Oil)",
+    "अरहर दाल (Toor Dal)",
+    "चना दाल (Chana Dal)",
+    "मूंग दाल (Moong Dal)",
+    "चायपत्ती (Tea)",
+    "नमक (Salt)",
+    "हल्दी पाउडर (Turmeric)",
+    "धनिया पाउडर (Coriander)",
+    "मिर्च पाउडर (Chilli)",
+    "गरम मसाला (Garam Masala)",
+    "देसी घी (Desi Ghee)",
+    "नहाने का साबुन (Soap)",
+    "कपड़े धोने का सर्फ (Detergent)",
+    "टूथपेस्ट (Toothpaste)",
+    "बिस्कुट (Biscuits)",
+    "नमकीन (Namkeen)",
+    "मैगी (Noodles)",
+    "पोहा (Poha)",
+    "सूजी / रवा (Suji)",
+    "बेसन (Besan)",
+    "जीरा (Cumin)",
+    "सरसों दाना (Mustard Seeds)"
+  ],
+  "authUsers": [
+    {
+      "name": "विहंगम किराना स्टोर",
+      "password": "266311"
+    }
+  ],
+  "customerDeletePin": null,
+  "customerAddPin": null
+}
